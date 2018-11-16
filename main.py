@@ -1,6 +1,8 @@
 
 import sys, pygame
 
+
+
 if __name__ == "__main__":
     pygame.init()
 
@@ -10,11 +12,7 @@ if __name__ == "__main__":
 
     screen = pygame.display.set_mode(size)
 
-    ball = pygame.transform.scale( pygame.image.load("spaceship.jpg"), (400,425))
-    
-    ballrect = ball.get_rect()
-
-    while 1:
+    while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
 
