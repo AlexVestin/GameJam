@@ -2,11 +2,12 @@ import pygame
 from Point2D import *
 from GameManager import *
 from Missile import *
+from bazier import vec2d
 import math
 
 class Player():
     def __init__(self, x, y):
-        self.position = Point2D(x, y)
+        self.position = vec2d(x, y)
         self.points = 0
         self.cooldown = 500
         self.last_fired = pygame.time.get_ticks()

@@ -24,7 +24,7 @@ def parse_joystick_msg(msg, player):
     else:
         last_msg = splt[0]
     if "LEFTSTART" in msg:
-        player.power = 11        
+        player.power = 11
     elif "LEFTEND" in msg:
         player.power = 0
     elif "RIGHTSTART" in msg:
@@ -41,7 +41,7 @@ def parse_joystick_msg(msg, player):
     #left joystick
     if  last_msg[0] == "*":
         split_msg = msg.split(":")
-        player.direction = float(split_msg[1]) 
+        player.direction = float(split_msg[1])
         #player.power = float(split_msg[2])
 
 def rot_center(image, angle):
@@ -83,7 +83,8 @@ if __name__ == "__main__":
     clock = pygame.time.get_ticks() + 50
     clock_temp = pygame.time.get_ticks() + 1000
 
-    units.extend([Enemy(10 + unit * 30,20, 1) for unit in range(0, 30)])
+    units.extend([Enemy(10 + unit * 30,20, 1, player) for unit in range(0, 30)])
+    units.extend([Enemy(10 + unit * 30, 20, 2, player) for unit in range(0, 30)])
 
     clock_2 = pygame.time.Clock()
     prev_speed = 1
@@ -107,22 +108,17 @@ if __name__ == "__main__":
 
         current = pygame.time.get_ticks()
 
-        for unit in units:
-            unit.move(0, 1)
-        if current >= clock:
-            clock = current + 20
-
-
         """
         current = pygame.time.get_ticks()
         if current >= clock_temp:
             clock_temp = current + 1000
             create_wave()
-            """
+
+        """
 
         player.joystick_pressed()
         player.key_pressed()
-        
+
 
         r_image = rot_center(player_img, ((player.rotation - (math.pi/2)) / math.pi) * 180 )
 
@@ -131,17 +127,19 @@ if __name__ == "__main__":
         pygame.draw.rect(screen, pygame.Color(0,0,128), pygame.Rect(player.position.x, player.position.y, 12, 12), 5)
 
         for unit in units:
+            unit.update()
             # Draw each path
-            pygame.draw.rect(screen, pygame.Color(0, 128, 0), pygame.Rect(unit.position.x, unit.position.y, 5, 5), 5)
+            if unit.dead:
+                units.remove(unit)
+            pygame.draw.rect(screen, unit.color, pygame.Rect(unit.position.x, unit.position.y, unit.size, unit.size), unit.size)
 
         for missile in missiles:
-            missile.update()
+            missile.update(player.rotation)
             occured_collision = collision(missile, units)
             pygame.draw.rect(screen, pygame.Color(128, 0, 0), pygame.Rect(missile.position.x, missile.position.y, 3, 3), 3)
             if occured_collision[0]:
-                print(occured_collision)
                 missiles.remove(missile)
-                units.remove(occured_collision[1])
+                occured_collision[1].hit_points -= 100
 
         pygame.display.flip()
         pygame.display.update()
