@@ -6,6 +6,7 @@ from GameManager import *
 from bazier import *
 import socket, math
 from analyze_audio import *
+import pickle
 
 HOST = '130.236.181.73'  # The server's hostname or IP address
 PORT = 65431        # The port used by the server
@@ -58,9 +59,18 @@ if __name__ == "__main__":
 
 
     file_path = "./assets/audio/Knock.wav"
+    
+    """
     audio_info, tempo = analyze_audio(file_path)
+    with open("audio.txt", "wb") as f:
+        f.write(pickle.dumps(audio_info))
+    """
+
+    tempo = 112.3471
+    f = open("audio.txt", "rb")
+    audio_info = pickle.load(f)
+    f.close()
     play_sound(file_path)
-    print("Audio analyzing done")
 
     size = width, height = 1080, 420
     speed = [2, 2]
@@ -117,7 +127,7 @@ if __name__ == "__main__":
         r_image = rot_center(player_img, ((player.rotation - (math.pi/2)) / math.pi) * 180 )
 
         screen.fill(black)
-        screen.blit(r_image, (player.position.x - 10, player.position.y- 10, 20, 20))
+        screen.blit(r_image, (player.position.x - 20, player.position.y- 20, 20, 20))
         pygame.draw.rect(screen, pygame.Color(0,0,128), pygame.Rect(player.position.x, player.position.y, 12, 12), 5)
 
         for unit in units:
