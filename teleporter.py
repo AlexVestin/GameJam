@@ -3,7 +3,7 @@ from bazier import *
 import random
 
 class Teleporter:
-    def __init__(self, x, y, type, player, timestamps):
+    def __init__(self, x, y, type, player):
         self.position = vec2d(x, y)
         self.type = type
         self.hit_points = 10
@@ -13,7 +13,6 @@ class Teleporter:
         self.dead = False
         self.color = None
         self.speed = 0
-        self.timestamps = timestamps
         self.player = player
         self.init()
 
@@ -21,6 +20,7 @@ class Teleporter:
         self.color = pygame.Color(128,255,80)
         self.size = 10
         self.speed = 2000
+        self.jump_cd = random.randint(1, 8)
     
     def teleport(self):
         x = random.randint(0, 1000)
@@ -35,19 +35,18 @@ class Teleporter:
         if self.type == 1: self.hit_points = 200
         elif self.type == 2: self.hit_points = 100
 
-    def update(self, t):
-        """
-        sec = t / 1000.0
-        print(sec, self.timestamps[0][0])
-        print(len(self.timestamps))
-        if sec > self.timestamps[0][0]:
-            ts, strength = self.timestamps.pop()
+    def update(self, on_beat):
+        if on_beat:
+        
+            self.jump_cd -= 1
+            #if self.jump_cd == 0:
             self.teleport()
+            self.jump_cd = random.randint(1, 8)
 
         if self.hit_points <= 0:
             self.dead = True
-        """
-        pass
+        
+        
 
 
 

@@ -60,18 +60,9 @@ if __name__ == "__main__":
     pygame.init()
     
     file_path = "./assets/audio/Knock.wav"    
-    
-    """
-    audio_info, tempo = analyze_audio(file_path)
-    with open("audio.txt", "wb") as f:
-        f.write(pickle.dumps(audio_info))
-    """
+    play_sound(file_path)
 
-    tempo = 112.3471
-    f = open("audio.txt", "rb")
-    audio_info = pickle.load(f)
-    f.close()
-    #play_sound(file_path)
+    analyzer = Analyzer(file_path)
 
     size = width, height = 1080, 420
     speed = [2, 2]
@@ -84,9 +75,9 @@ if __name__ == "__main__":
     clock = pygame.time.get_ticks() + 50
     clock_temp = pygame.time.get_ticks() + 1000
 
-    #units.extend([Enemy(10 + unit * 30,20, 1, player) for unit in range(0, 12)])
-    #units.extend([Enemy(10 + unit * 30, 20, 2, player) for unit in range(0, 30)])
-    units.extend([Teleporter(10 + unit * 30, 20, 3, player, audio_info) for unit in range(0, 5)])
+    units.extend([Enemy(10 + unit * 30,20, 1, player) for unit in range(0, 12)])
+    units.extend([Enemy(10 + unit * 30, 20, 2, player) for unit in range(0, 30)])
+    units.extend([Teleporter(10 + unit * 30, 20, 3, player) for unit in range(0, 5)])
 
     clock_2 = pygame.time.Clock()
     prev_speed = 1
@@ -98,6 +89,8 @@ if __name__ == "__main__":
     start_time = pygame.time.get_ticks()
     while True:
         t = pygame.time.get_ticks() -  start_time
+        on_beat, strength = analyzer.get_beat(t)
+
         msg = ""
         try:
             msg = s.recv(12)
@@ -128,7 +121,7 @@ if __name__ == "__main__":
         pygame.draw.rect(screen, pygame.Color(0,0,128), pygame.Rect(player.position.x, player.position.y, 12, 12), 5)
 
         for unit in units:
-            unit.update(t)
+            unit.update(on_beat)
             # Draw each path
             if unit.dead:
                 units.remove(unit)

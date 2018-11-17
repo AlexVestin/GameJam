@@ -4,6 +4,7 @@ from librosa import load, frames_to_time, stft
 from librosa.beat import beat_track
 import numpy as np
 import pygame
+import pickle
 
 def play_sound(file_path):
     pygame.mixer.pre_init(44100, -16, 2, 2048) # setup mixer to avoid sound lag
@@ -29,3 +30,24 @@ def analyze_audio(file_path):
         audio_info.append((timestamp, alpha))
     
     return audio_info, tempo
+
+
+class Analyzer:
+    def __init__(self, file_path):
+        """audio_info, tempo = analyze_audio(file_path)
+        with open("audio.txt", "wb") as f:
+            f.write(pickle.dumps(audio_info))
+        """
+        tempo = 112.3471
+        f = open("audio.txt", "rb")
+        self.timestamps = pickle.load(f)
+        f.close()
+
+    
+    def get_beat(self, time):
+        sec = time / 1000.0
+        if sec > self.timestamps[0][0]:
+            ts, strength = self.timestamps.pop(0)
+            return True, strength
+        
+        return False, 0
