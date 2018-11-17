@@ -28,13 +28,17 @@ class Enemy:
             self.set_path()
 
     def set_path(self):
-        player_vec = vec2d(self.player.position.x, self.player.position.y) - self.position
+        player_vec = self.player.position - self.position
         control_points = [vec2d(self.position.x, self.position.y),
-                          vec2d(self.position.x + random.randint(-200, 200) , self.position.y + random.randint(-200, 200)) + player_vec,
-                          vec2d(self.position.x + random.randint(-200, 200), self.position.y + random.randint(-200, 200)) + player_vec,
-                          vec2d(self.position.x + random.randint(-200, 200) , self.position.y + random.randint(-200, 200)) + player_vec]
+                          vec2d(self.position.x + random.randint(-200, 200),
+                                self.position.y + random.randint(-200, 200)) + player_vec,
+                          vec2d(self.position.x + random.randint(-200, 200),
+                                self.position.y + random.randint(-200, 200)) + player_vec,
+                          vec2d(self.position.x + random.randint(-200, 200),
+                                self.position.y + random.randint(-200, 200)) + player_vec]
         self.path = compute_bezier_points([(x.x, x.y) for x in control_points], self.speed)
-        self.path.reverse()# USE THIS AS PATH
+        self.path.reverse()  # USE THIS AS PATH
+
 
     def move(self, x, y):
         if len(self.path) != 0:
@@ -45,11 +49,20 @@ class Enemy:
             self.set_path()
             self.move(0,1)
 
+    def death_animation(self):
+        control_points = [vec2d(self.position.x, self.position.y),
+                          vec2d(self.position.x + random.randint(-200, 200) , self.position.y + random.randint(-200, 200)) + player_vec,
+                          vec2d(self.position.x + random.randint(-200, 200), self.position.y + random.randint(-200, 200)) + player_vec,
+                          vec2d(self.position.x + random.randint(-200, 200) , self.position.y + random.randint(-200, 200)) + player_vec]
+        self.path = compute_bezier_points([(x.x, x.y) for x in control_points], self.speed)
+        self.path.reverse()# USE THIS AS PATH
+        pass
+
     def health(self): # one his =-100
         if self.type == 1: self.hit_points = 200
         elif self.type == 2: self.hit_points = 100
 
-    def update(self, t):
+    def update(self, onbeat):
         self.move(0, 1)
         if self.hit_points <= 0:
             self.dead = True

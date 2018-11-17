@@ -21,7 +21,7 @@ player_id_cnt = 0
 
 def parse_joystick_msg(msg):
     global player_id_cnt
-    
+
     print(msg)
     if "ping" in msg:
         return
@@ -53,7 +53,7 @@ def parse_joystick_msg(msg):
     elif "CLOSED" in msg:
         del players[id]
         return
-
+    
     #right joystick
     if  msg[0] == "_":
         split_msg = msg.split(":")[0][1:]
@@ -75,8 +75,6 @@ def rot_center(image, angle):
     rot_image = rot_image.subsurface(rot_rect).copy()
     return rot_image
 
-
-
 if __name__ == "__main__":
     pygame.init()
     
@@ -91,7 +89,7 @@ if __name__ == "__main__":
 
     screen = pygame.display.set_mode(size)
     screen.get_height()
-    
+
 
     clock = pygame.time.get_ticks() + 50
     clock_temp = pygame.time.get_ticks() + 1000
@@ -129,6 +127,7 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT: sys.exit()
 
         current = pygame.time.get_ticks()
+        player.shoot()
 
         """
         current = pygame.time.get_ticks()
@@ -136,6 +135,10 @@ if __name__ == "__main__":
             clock_temp = current + 1000
             create_wave()
         """
+
+        if on_beat:
+            create_wave(eplayr)
+
         screen.fill(black)
 
         for key in players.keys():
@@ -155,7 +158,7 @@ if __name__ == "__main__":
             pygame.draw.rect(screen, unit.color, pygame.Rect(unit.position.x, unit.position.y, unit.size, unit.size), unit.size)
 
         for missile in missiles:
-            missile.update(player.rotation)
+            missile.update()
             occured_collision = collision(missile, units)
             pygame.draw.rect(screen, pygame.Color(128, 0, 0), pygame.Rect(missile.position.x, missile.position.y, 3, 3), 3)
             if occured_collision[0]:
