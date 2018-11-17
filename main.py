@@ -56,10 +56,7 @@ def rot_center(image, angle):
 if __name__ == "__main__":
     pygame.init()
 
-
-
-    file_path = "./assets/audio/Knock.wav"
-    
+    file_path = "./assets/audio/Knock.wav"    
     """
     audio_info, tempo = analyze_audio(file_path)
     with open("audio.txt", "wb") as f:
