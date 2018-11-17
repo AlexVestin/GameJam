@@ -3,6 +3,7 @@ from librosa.onset import onset_detect, onset_strength
 from librosa import load, frames_to_time, stft
 from librosa.beat import beat_track
 import numpy as np
+import pygame
 
 def play_sound(file_path):
     pygame.mixer.pre_init(44100, -16, 2, 2048) # setup mixer to avoid sound lag
@@ -28,6 +29,3 @@ def analyze_audio(file_path):
         audio_info.append((timestamp, alpha))
     
     return audio_info, tempo
-
-file_path = "./assets/audio/Knock.wav"
-audio_info, tempo = analyze_audio(file_path)

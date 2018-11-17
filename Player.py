@@ -28,7 +28,6 @@ class Player():
         dy = -math.sin(self.direction) * self.power / 12
         self.move(dx, dy)
 
-    
     def key_pressed(self):
         keys = pygame.key.get_pressed()
 

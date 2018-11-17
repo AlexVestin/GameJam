@@ -5,12 +5,13 @@ from enemy import *
 from GameManager import *
 from bazier import *
 import socket, math
+from analyze_audio import *
 
 HOST = '130.236.181.73'  # The server's hostname or IP address
 PORT = 65431        # The port used by the server
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
-s.settimeout(0.0001)
+s.settimeout(0.00005)
 
 def parse_joystick_msg(msg, player):
     if "ping" in msg:
@@ -21,7 +22,6 @@ def parse_joystick_msg(msg, player):
         last_msg = splt[1]
     else:
         last_msg = splt[0]
-    
     if "LEFTSTART" in msg:
         player.power = 11        
     elif "LEFTEND" in msg:
@@ -55,6 +55,13 @@ def rot_center(image, angle):
 if __name__ == "__main__":
     pygame.init()
 
+
+
+    file_path = "./assets/audio/Knock.wav"
+    audio_info, tempo = analyze_audio(file_path)
+    play_sound(file_path)
+    print("Audio analyzing done")
+
     size = width, height = 1080, 420
     speed = [2, 2]
     black = 0, 0, 0
@@ -72,7 +79,6 @@ if __name__ == "__main__":
     prev_speed = 1
     tick = 0
 
-
     player_img = pygame.image.load("assets/img/charsmall.png")
     player_rect = player_img.get_rect()
 
@@ -84,7 +90,7 @@ if __name__ == "__main__":
             pass
         
         if msg:
-            parse_joystick_msg(msg.encode("UTF-8"), player)
+            parse_joystick_msg(msg.decode(), player)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
