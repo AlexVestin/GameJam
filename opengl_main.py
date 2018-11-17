@@ -28,7 +28,7 @@ edges = (
     (5,1),
     (5,4),
     (5,7)
-    )
+)
 
 
 def Cube():
@@ -45,7 +45,6 @@ def main():
     pygame.display.set_mode(display, DOUBLEBUF|OPENGL)
 
     gluPerspective(45, (display[0]/display[1]), 0.1, 50.0)
-
     glTranslatef(0.0,0.0, -5)
 
     while True:
@@ -59,6 +58,5 @@ def main():
         Cube()
         pygame.display.flip()
         pygame.time.wait(10)
-
 
 main()

@@ -6,7 +6,8 @@ from bazier import vec2d
 import math
 
 class Player():
-    def __init__(self, x, y):
+    def __init__(self, x, y, name):
+        self.name = name
         self.position = vec2d(x, y)
         self.points = 0
         self.cooldown = 500
