@@ -27,6 +27,14 @@ class SimpleServer(WebSocket):
         if connected_to_server:
             try:
                 conn.sendall(self.data)
+                msg = ""
+                conn.settimeout(0.01)
+                try:
+                    msg = conn.recv(2)
+                except:
+                    pass
+                conn.settimeout(None)
+                print(msg)
                 sent_count += 1
             except:
                 connected_to_server = False
