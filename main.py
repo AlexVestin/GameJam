@@ -15,7 +15,7 @@ HOST = '130.236.181.74'  # The server's hostname or IP address
 PORT = 65431        # The port used by the server
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
-s.settimeout(0.00005)
+s.settimeout(0.002)
 players = {}
 player_id_cnt = 0
 
@@ -32,7 +32,6 @@ def parse_joystick_msg(msg):
         if player_id_cnt < 10:
             st = "0" + str(player_id_cnt)
         s.send(st.encode())
-
         players[st] = Player(10, screen.get_height() - 20, msg[1:])
         player_id_cnt += 1
         return
@@ -79,7 +78,7 @@ if __name__ == "__main__":
     pygame.init()
     
     file_path = "./assets/audio/Knock.wav"    
-    play_sound(file_path)
+    #play_sound(file_path)
 
     analyzer = Analyzer(file_path)
 
@@ -115,10 +114,11 @@ if __name__ == "__main__":
         on_beat, strength = analyzer.get_beat(t)
 
         msg = ""
-        try:
-            msg = s.recv(16)
-        except:
-            pass
+        for _ in range(len(players) + 1):
+            try:
+                msg = s.recv(16)
+            except:
+                pass
         
         if msg:
             parse_joystick_msg(msg.decode())
@@ -127,8 +127,7 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT: sys.exit()
 
         current = pygame.time.get_ticks()
-        player.shoot()
-
+        
         """
         current = pygame.time.get_ticks()
         if current >= clock_temp:
@@ -136,15 +135,15 @@ if __name__ == "__main__":
             create_wave()
         """
 
-        if on_beat:
-            create_wave(eplayr)
-
         screen.fill(black)
 
         for key in players.keys():
             player = players[key]
             player.joystick_pressed()
             player.key_pressed()
+            player.shoot()
+            #if on_beat:
+            #    create_wave(player)
             r_image = rot_center(player_img, ((player.rotation - (math.pi/2)) / math.pi) * 180 )
             screen.blit(r_image, (player.position.x - 20, player.position.y- 20, 20, 20))
 
