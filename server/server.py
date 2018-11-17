@@ -15,30 +15,44 @@ clients = []
 class SimpleServer(WebSocket):
     initialized = False
     name = ""
+    id = ""
+
+    def fill(self, s):
+        l = len(s)
+        s = self.id + s
+
+        return s
 
     def handleMessage(self):
         global connected_to_server
         global sent_count
-        if not self.initialized:
-            self.name = self.data
-            self.initialized = True
-
-        # self.messages.append(self.data)
         if connected_to_server:
-            try:
-                conn.sendall(self.data)
+            if not self.initialized:
+                self.name = self.data
+
+                try:
+                    conn.sendall(self.data)
+                except:
+                    connected_to_server = False
+                    print("Disconnected")
+
                 msg = ""
-                conn.settimeout(0.01)
                 try:
                     msg = conn.recv(2)
                 except:
                     pass
-                conn.settimeout(None)
-                print(msg)
-                sent_count += 1
-            except:
-                connected_to_server = False
-                print("Disconnected")
+                self.id = msg
+
+                print("id:", self.id)
+                self.initialized = True
+
+        # self.messages.append(self.data)
+            else:
+                try:
+                    conn.sendall(self.fill(self.data))
+                except:
+                    connected_to_server = False
+                    print("Disconnected")
         # update(self.data)
 
 
@@ -49,8 +63,7 @@ class SimpleServer(WebSocket):
     def handleClose(self):
        clients.remove(self)
        print(self.address, 'closed')
-       for client in clients:
-          client.sendMessage(self.address[0] + u' - disconnected')
+       conn.send(self.id + "CLOSED||||||||")
 
 
 server = SimpleWebSocketServer('0.0.0.0', 8000, SimpleServer)
@@ -66,7 +79,7 @@ while True:
     else:
         if ping_cnt % 12 == 0:
             try:
-                conn.sendall("ping||||||||")
+                conn.sendall("ping||||||||||||")
             except:
                 connected_to_server = False
                 print("Disconnected")
