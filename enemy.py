@@ -2,7 +2,7 @@ from Point2D import *
 from bazier import *
 import random
 class Enemy:
-    def __init__(self,x, y, type, player):
+    def __init__(self, x, y, type, player):
         self.position = vec2d(x, y)
         self.type = type
         self.hit_points = 0
@@ -49,7 +49,7 @@ class Enemy:
         if self.type == 1: self.hit_points = 200
         elif self.type == 2: self.hit_points = 100
 
-    def update(self):
+    def update(self, t):
         self.move(0, 1)
         if self.hit_points <= 0:
             self.dead = True
