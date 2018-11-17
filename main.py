@@ -3,6 +3,7 @@ import sys, pygame
 from Player import *
 from enemy import *
 from GameManager import *
+from bazier import *
 
 
 
@@ -20,21 +21,28 @@ if __name__ == "__main__":
     clock = pygame.time.get_ticks() + 50
     clock_temp = pygame.time.get_ticks() + 1000
 
+    units.extend([Enemy(10 + unit * 30,20, 1) for unit in range(0, 30)])
+
+    clock_2 = pygame.time.Clock()
     prev_speed = 1
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
 
         current = pygame.time.get_ticks()
-        if current >= clock:
-            clock = current + 50
-            for unit in units:
-                unit.move(0, 1)
 
+        for unit in units:
+            unit.move(0, 1)
+        if current >= clock:
+            clock = current + 20
+
+
+        """
         current = pygame.time.get_ticks()
         if current >= clock_temp:
             clock_temp = current + 1000
             create_wave()
+            """
 
 
         player.key_pressed()
@@ -45,6 +53,7 @@ if __name__ == "__main__":
                          5)
 
         for unit in units:
+            # Draw each path
             pygame.draw.rect(screen, pygame.Color(0, 128, 0), pygame.Rect(unit.position.x, unit.position.y, 5, 5), 5)
 
         for missile in missiles:
@@ -59,3 +68,4 @@ if __name__ == "__main__":
 
 
         pygame.display.flip()
+        pygame.display.update()
