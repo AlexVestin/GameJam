@@ -119,9 +119,8 @@ if __name__ == "__main__":
 
 
         if on_beat:
-            create_wave(player)
+            create_wave(eplayr)
 
-        """
         screen.fill(black)
 
         for key in players.keys():

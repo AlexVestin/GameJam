@@ -28,6 +28,16 @@ class Enemy:
             self.set_path()
 
     def set_path(self):
+        player_vec = self.player.position - self.position
+        control_points = [vec2d(self.position.x, self.position.y),
+                          vec2d(self.position.x + random.randint(-200, 200),
+                                self.position.y + random.randint(-200, 200)) + player_vec,
+                          vec2d(self.position.x + random.randint(-200, 200),
+                                self.position.y + random.randint(-200, 200)) + player_vec,
+                          vec2d(self.position.x + random.randint(-200, 200),
+                                self.position.y + random.randint(-200, 200)) + player_vec]
+        self.path = compute_bezier_points([(x.x, x.y) for x in control_points], self.speed)
+        self.path.reverse()  # USE THIS AS PATH
 
 
     def move(self, x, y):
