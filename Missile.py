@@ -10,8 +10,9 @@ class Missile:
         self.position.y +=  y
         self.position.x += x
 
+        
     def update(self):
-        dx = cos(self.rad) * 2
-        dy = -sin(self.rad) * 2
+        dx = cos(self.rad) * 6
+        dy = -sin(self.rad) * 6
         self.move(dx, dy)
 

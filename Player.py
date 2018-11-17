@@ -10,7 +10,7 @@ class Player():
         self.name = name
         self.position = vec2d(x, y)
         self.points = 0
-        self.cooldown = 500
+        self.cooldown = 75
         self.last_fired = pygame.time.get_ticks()
         self.left_joystick_down = False
         self.right_joystick_down = False

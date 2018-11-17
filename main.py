@@ -38,20 +38,21 @@ def parse_joystick_msg(msg):
 
     
     id = msg[:2]
+    if "CLOSED" in msg:
+        if id in players:
+            del players[id]
+        return
     player = players[id]
     msg = msg[2:].split("|")[0]
 
     if "LEFTSTART" in msg:
-        player.power = 11
+        player.power = 22
     elif "LEFTEND" in msg:
         player.power = 0
     elif "RIGHTSTART" in msg:
         pass
     elif "RIGHTEND" in msg:
-        player.rotation = 0
-    elif "CLOSED" in msg:
-        del players[id]
-        return
+        pass
     
     #right joystick
     if  msg[0] == "_":
@@ -83,19 +84,23 @@ if __name__ == "__main__":
     analyzer = Analyzer(file_path)
 
     size = width, height = 1080, 420
+    
     speed = [2, 2]
     black = 0, 0, 0
 
     screen = pygame.display.set_mode(size)
+    
     screen.get_height()
+
+    pygame.display.toggle_fullscreen()
 
 
     clock = pygame.time.get_ticks() + 50
     clock_temp = pygame.time.get_ticks() + 1000
 
-    #units.extend([Enemy(10 + unit * 30,20, 1, player) for unit in range(0, 12)])
-    #units.extend([Enemy(10 + unit * 30, 20, 2, player) for unit in range(0, 30)])
-    #units.extend([Teleporter(10 + unit * 30, 20, 3, player) for unit in range(0, 5)])
+    units.extend([Enemy(10 + unit * 30,20, 1) for unit in range(0, 12)])
+    units.extend([Enemy(10 + unit * 30, 20, 2) for unit in range(0, 30)])
+    units.extend([Teleporter(10 + unit * 30, 20, 3) for unit in range(0, 5)])
 
     clock_2 = pygame.time.Clock()
     prev_speed = 1
@@ -108,8 +113,15 @@ if __name__ == "__main__":
 
     GAME_FONT = pygame.freetype.Font("assets/fonts/Roboto-Italic.ttf", 24)
     text_surface, rect = GAME_FONT.render("goo.gl/HTn5hU", (255, 255, 255))
+    inited = False
     
     while True:
+        if not inited and len(players) >= 1:
+            for unit in units:
+                unit.player = players[list(players.keys())[0]]
+            inited = True
+        
+
         t = pygame.time.get_ticks() -  start_time
         on_beat, strength = analyzer.get_beat(t)
 
@@ -145,7 +157,7 @@ if __name__ == "__main__":
             #if on_beat:
             #    create_wave(player)
             r_image = rot_center(player_img, ((player.rotation - (math.pi/2)) / math.pi) * 180 )
-            screen.blit(r_image, (player.position.x - 20, player.position.y- 20, 20, 20))
+            screen.blit(r_image, (player.position.x - 10, player.position.y- 10, 10, 10))
 
         #pygame.draw.rect(screen, pygame.Color(0,0,128), pygame.Rect(player.position.x, player.position.y, 12, 12), 5)
 
@@ -163,7 +175,8 @@ if __name__ == "__main__":
             if occured_collision[0]:
                 missiles.remove(missile)
                 occured_collision[1].hit_points -= 100
-
+            elif missile.position.x > 1080 or missile.position.x < 0 or missile.position.y < 0 or missile.position.y > 480:
+                missiles.remove(missile)
 
         screen.blit(text_surface, (1080/2 - 100, 10))
         pygame.display.flip()

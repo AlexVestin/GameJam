@@ -3,7 +3,7 @@ from bazier import *
 import random
 
 class Teleporter:
-    def __init__(self, x, y, type, player):
+    def __init__(self, x, y, type):
         self.position = vec2d(x, y)
         self.type = type
         self.hit_points = 10
@@ -13,7 +13,7 @@ class Teleporter:
         self.dead = False
         self.color = None
         self.speed = 0
-        self.player = player
+        self.hitbox_size = 20
         self.init()
 
     def init(self):

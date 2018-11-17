@@ -9,7 +9,7 @@ enemy_types = {"BOSS": 1, "NORMAL": 2}
 def collision(missile, units):
     for unit in units:
         rect_missile =  pygame.Rect(missile.position.x, missile.position.y, 3, 3)
-        rect_unit    =  pygame.Rect(unit.position.x,  unit.position.y, unit.size, unit.size)
+        rect_unit    =  pygame.Rect(unit.position.x,  unit.position.y, unit.hitbox_size, unit.hitbox_size)
         if rect_missile.colliderect(rect_unit):
             return (True, unit)
 
