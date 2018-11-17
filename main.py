@@ -4,42 +4,53 @@ from Player import *
 from enemy import *
 from GameManager import *
 from bazier import *
-import socket
+import socket, math
 
 HOST = '130.236.181.73'  # The server's hostname or IP address
 PORT = 65431        # The port used by the server
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
-s.settimeout(0.01)
+s.settimeout(0.0001)
 
 def parse_joystick_msg(msg, player):
-
-    msg = msg.split("|")
-    if msg[1]:
-        msg = msg[1]
-    else:
-        msg = msg[0]
+    if "ping" in msg:
+        return
     
-    if "LEFTSTART"  in msg:
-        pass        
+    splt = msg.split("|")
+    if splt[1]:
+        last_msg = splt[1]
+    else:
+        last_msg = splt[0]
+    
+    if "LEFTSTART" in msg:
+        player.power = 11        
     elif "LEFTEND" in msg:
-        player.direction = 0
         player.power = 0
     elif "RIGHTSTART" in msg:
         pass
     elif "RIGHTEND" in msg:
-        player.direction = 0
-        player.power = 0
+        player.rotation = 0
     
-    if  msg[0] == "_":
+    #right joystick
+    if  last_msg[0] == "_":
         split_msg = msg.split(":")
-        player.direction = float(split_msg[1])
-        player.power = float(split_msg[2])
+        player.rotation = float(split_msg[1])
+        #player.power = float(split_msg[2])
     
-    if  msg[0] == "*":
+    #left joystick
+    if  last_msg[0] == "*":
         split_msg = msg.split(":")
-        player.direction = float(split_msg[1])
-        player.power = float(split_msg[2])
+        player.direction = float(split_msg[1]) 
+        #player.power = float(split_msg[2])
+
+def rot_center(image, angle):
+    """rotate an image while keeping its center and size"""
+    orig_rect = image.get_rect()
+    rot_image = pygame.transform.rotate(image, angle)
+    rot_rect = orig_rect.copy()
+    rot_rect.center = rot_image.get_rect().center
+    rot_image = rot_image.subsurface(rot_rect).copy()
+    return rot_image
 
 if __name__ == "__main__":
     pygame.init()
@@ -59,10 +70,16 @@ if __name__ == "__main__":
 
     clock_2 = pygame.time.Clock()
     prev_speed = 1
+    tick = 0
+
+
+    player_img = pygame.image.load("assets/img/charsmall.png")
+    player_rect = player_img.get_rect()
+
     while True:
         msg = ""
         try:
-            msg = s.recv(256)
+            msg = s.recv(12)
         except:
             pass
         
@@ -89,10 +106,13 @@ if __name__ == "__main__":
 
         player.joystick_pressed()
         player.key_pressed()
+        
 
+        r_image = rot_center(player_img, ((player.rotation - (math.pi/2)) / math.pi) * 180 )
 
         screen.fill(black)
-        pygame.draw.rect(screen, pygame.Color(0,0,128), pygame.Rect(player.position.x, player.position.y, 5, 5), 5)
+        screen.blit(r_image, (player.position.x - 10, player.position.y- 10, 20, 20))
+        pygame.draw.rect(screen, pygame.Color(0,0,128), pygame.Rect(player.position.x, player.position.y, 12, 12), 5)
 
         for unit in units:
             # Draw each path
@@ -109,3 +129,4 @@ if __name__ == "__main__":
 
         pygame.display.flip()
         pygame.display.update()
+

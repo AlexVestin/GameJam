@@ -14,6 +14,7 @@ class Player():
         self.right_joystick_down = False
         self.direction = 0
         self.power = 0
+        self.rotation = 0
 
     def move(self, x, y):
         self.position.x += x
@@ -25,8 +26,6 @@ class Player():
     def joystick_pressed(self):
         dx = math.cos(self.direction) * self.power / 12
         dy = -math.sin(self.direction) * self.power / 12
-
-        print(dx, dy, self.power)
         self.move(dx, dy)
 
     
