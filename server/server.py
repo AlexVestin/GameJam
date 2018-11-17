@@ -1,7 +1,4 @@
 from SimpleWebSocketServ import SimpleWebSocketServer, WebSocket
-
-
-
 import socket
 
 HOST = '0.0.0.0'  # Standard loopback interface address (localhost)
@@ -13,6 +10,7 @@ s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 s.bind((HOST, PORT))
 s.listen(1)
+
 print("waiting for connections")
 conn, addr = s.accept()
 print(addr, "connected")
