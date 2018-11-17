@@ -56,6 +56,7 @@ def rot_center(image, angle):
     rot_image = rot_image.subsurface(rot_rect).copy()
     return rot_image
 
+
 if __name__ == "__main__":
     pygame.init()
     
@@ -104,14 +105,12 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT: sys.exit()
 
         current = pygame.time.get_ticks()
+        player.shoot()
 
-        """
-        current = pygame.time.get_ticks()
-        if current >= clock_temp:
-            clock_temp = current + 1000
-            create_wave()
 
-        """
+        if on_beat:
+            create_wave(player)
+
 
         player.joystick_pressed()
         player.key_pressed()
@@ -124,11 +123,12 @@ if __name__ == "__main__":
             unit.update(on_beat)
             # Draw each path
             if unit.dead:
+                units.death_anim()
                 units.remove(unit)
             pygame.draw.rect(screen, unit.color, pygame.Rect(unit.position.x, unit.position.y, unit.size, unit.size), unit.size)
 
         for missile in missiles:
-            missile.update(player.rotation)
+            missile.update()
             occured_collision = collision(missile, units)
             pygame.draw.rect(screen, pygame.Color(128, 0, 0), pygame.Rect(missile.position.x, missile.position.y, 3, 3), 3)
             if occured_collision[0]:

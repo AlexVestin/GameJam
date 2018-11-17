@@ -22,8 +22,9 @@ class Player():
         self.position.y += y
 
     def shoot(self):
-        missiles.append(Missile(self.position.x, self.position.y))
-    
+        if self.check_cooldown():
+            missiles.append(Missile(self.position.x, self.position.y, self.rotation))
+
     def joystick_pressed(self):
         dx = math.cos(self.direction) * self.power / 12
         dy = -math.sin(self.direction) * self.power / 12

@@ -15,6 +15,5 @@ def collision(missile, units):
 
     return(False, None)
 
-def create_wave(amount = 16):
-    units.extend([Enemy(10 + unit * 30,20, 1) for unit in range(0, amount)])
-    pass
+def create_wave(player, amount = 1, ):
+    units.extend([Enemy(10 + unit * 30,20, 1, player) for unit in range(0, amount)])
