@@ -17,8 +17,8 @@ if __name__ == "__main__":
     screen.get_height()
     player = Player(10, screen.get_height() - 20)
 
-    units = [Enemy(10 + unit * 30,20) for unit in range(0,50)]
-    clock = pygame.time.get_ticks() + 100
+    clock = pygame.time.get_ticks() + 50
+    clock_temp = pygame.time.get_ticks() + 1000
 
     prev_speed = 1
     while True:
@@ -27,9 +27,14 @@ if __name__ == "__main__":
 
         current = pygame.time.get_ticks()
         if current >= clock:
-            clock = current + 100
+            clock = current + 50
             for unit in units:
                 unit.move(0, 1)
+
+        current = pygame.time.get_ticks()
+        if current >= clock_temp:
+            clock_temp = current + 1000
+            create_wave()
 
 
         player.key_pressed()
