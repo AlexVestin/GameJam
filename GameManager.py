@@ -3,6 +3,7 @@ from Player import *
 from Missile import *
 from enemy import *
 
+particle = [] # <= (UNIT, set of Particles())
 missiles = []
 units = []
 enemy_types = {"BOSS": 1, "NORMAL": 2}
