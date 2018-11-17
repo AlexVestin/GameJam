@@ -3,8 +3,12 @@ import sys, pygame
 from Player import *
 from enemy import *
 from GameManager import *
+import socket
 
-
+HOST = '130.236.181.73'  # The server's hostname or IP address
+PORT = 65431        # The port used by the server
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((HOST, PORT))
 
 if __name__ == "__main__":
     pygame.init()
@@ -22,6 +26,9 @@ if __name__ == "__main__":
 
     prev_speed = 1
     while True:
+        msg = s.recv(128)
+        print(msg)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
 
