@@ -47,6 +47,7 @@ if __name__ == "__main__":
             occured_collision = collision(missile, units)
             pygame.draw.rect(screen, pygame.Color(128, 0, 0), pygame.Rect(missile.position.x, missile.position.y, 3, 3), 3)
             if occured_collision[0]:
+                print(occured_collision)
                 missiles.remove(missile)
                 units.remove(occured_collision[1])
 
