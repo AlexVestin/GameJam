@@ -1,5 +1,6 @@
 
 import sys, pygame
+from LightSource import *
 from Player import *
 from enemy import *
 from GameManager import *
@@ -12,7 +13,7 @@ import time
 import pygame.freetype
 import os, select
 
-HOST = '130.236.181.72'  # The server's hostname or IP address
+HOST = '130.236.181.74'  # The server's hostname or IP address
 PORT = 65431        # The port used by the server
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
@@ -94,19 +95,35 @@ def rot_center(image, angle):
 
 if __name__ == "__main__":
     pygame.init()
+
+    LIGHT_GROUP = pygame.sprite.Group()
+    All = pygame.sprite.RenderUpdates()
+    ShowLight.containers = LIGHT_GROUP, All
+    ShowLight.images = pygame.Surface((1, 1), 32)
+
+    for light in LIGHTS:
+        if light[0] == 'Spotlight5':
+            threading.Timer(random.randint(2, 7), ShowLight, args=(light,)).start()
+        else:
+            ShowLight(light)
+
+    def segment_adjustment(polygon):
+        segments = ALL_SEGMENTS.copy()
+        for seg in polygon:
+            segments.remove(seg)
+        return segments
+
+    shadows = [Shadow(segment_adjustment(POLYGON2), static_=True, location_=(370, 94)),    # LIGHT1
+               Shadow(segment_adjustment(POLYGON1), static_=True, location_=(150, 185)),   # LIGHT6                   # LIGHT5
+               ]
+
+    global UPDATE
+    UPDATE = False
     
     file_path = "./assets/audio/xeno.wav"
     play_sound(file_path)
 
     analyzer = Analyzer(file_path)
-    size = width, height = 1080, 920
-
-    info = pygame.display.Info() # You have to call this before pygame.display.set_mode()
-    width, height = info.current_w,info.current_h
-    window_width,window_height = width-10,height-50
-    screen = pygame.display.set_mode((window_width,window_height))
-    pygame.display.update()
-    black = 0, 0, 0
 
     clock = pygame.time.get_ticks() + 50
     clock_temp = pygame.time.get_ticks() + 1000
@@ -151,6 +168,16 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT: sys.exit()
 
         current = pygame.time.get_ticks()
+
+        All.update()
+
+        if CreateLight.UPDATE:
+
+            All.draw(screen)
+            CreateLight.UPDATE = False
+            for shadow in shadows:
+                shadow.render_frame()
+
         
         """
         current = pygame.time.get_ticks()
@@ -212,7 +239,11 @@ if __name__ == "__main__":
             hp_text_surface, rect = GAME_FONT_SMALL.render(player.name + ": " + str(player.hit_points), (255, 255, 255))
             screen.blit(hp_text_surface, ( (i+1) * 250, 10))
         screen.blit(text_surface, (width/2 - 100, 10))
-        
+
+
+        TIME_PASSED_SECONDS = pygame.time.Clock().tick()
+
+        FRAME += 1
         pygame.display.flip()
         pygame.display.update()
 
