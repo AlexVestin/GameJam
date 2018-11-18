@@ -19,6 +19,7 @@ class Player():
         self.power = 0
         self.rotation = 0
         self.hit_points = 1000
+        self.max_hit_points = 1000
         self.hitbox_size = 20
         self.dead = False
         self.is_player = True
