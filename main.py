@@ -46,6 +46,9 @@ def parse_joystick_msg(msg):
         return
 
     id = msg[:2]
+
+    if len(players) == 0:
+        return
     if "CLOSED" in msg:
         if id in players:
             del players[id]
@@ -67,12 +70,14 @@ def parse_joystick_msg(msg):
     if  msg[0] == "_":
         split_msg = msg.split(":")[0][1:]
         player.rotation = float(split_msg)
+
         #player.power = float(split_msg[2])
     
     #left joystick
     if  msg[0] == "*":
         split_msg = msg.split(":")[0][1:]
         player.direction = float(split_msg)
+        player.power = 22
         #player.power = float(split_msg[2])
 
 def rot_center(image, angle):
@@ -87,8 +92,8 @@ def rot_center(image, angle):
 if __name__ == "__main__":
     pygame.init()
     
-    file_path = "./assets/audio/xeno.wav"    
-    #play_sound(file_path)
+    file_path = "./assets/audio/xeno.wav"
+    play_sound(file_path)
 
     analyzer = Analyzer(file_path)
     size = width, height = 1080, 920
@@ -98,7 +103,7 @@ if __name__ == "__main__":
     window_width,window_height = width-10,height-50
     screen = pygame.display.set_mode((window_width,window_height))
     pygame.display.update()
-    black = 0, 0, 0    
+    black = 0, 0, 0
 
     clock = pygame.time.get_ticks() + 50
     clock_temp = pygame.time.get_ticks() + 1000
@@ -119,13 +124,13 @@ if __name__ == "__main__":
     GAME_FONT_SMALL = pygame.freetype.Font("assets/fonts/Roboto-Italic.ttf", 30)
     text_surface, rect = GAME_FONT.render("goo.gl/HTn5hU", (255, 255, 255))
     inited = False
-    
+
     while True:
         if not inited and len(players) >= 1:
             for unit in units:
                 unit.player = players[list(players.keys())[0]]
             inited = True
-        
+
         t = pygame.time.get_ticks() -  start_time
         on_beat, strength = analyzer.get_beat(t)
 
@@ -152,6 +157,13 @@ if __name__ == "__main__":
         """
 
         screen.fill(black)
+
+        for p in particle:
+            p[1].update()
+            pygame.draw.rect(screen, pygame.Color(0,p[1].alpha,0, p[1].alpha), pygame.Rect(p[1].position.x, p[1].position.y, 2, 2),
+                             2)
+
+            if p[1].alpha - 10 <= 0: particle.remove(p)
 
         for key in players.keys():
             player = players[key]

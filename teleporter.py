@@ -34,6 +34,7 @@ class Teleporter:
         print(dx, dy)
         dx += random.randint(-self.noise, self.noise)
         dy += random.randint(-self.noise, self.noise)
+
         self.move(dx, dy)
 
     def move(self, x, y):
