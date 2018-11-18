@@ -34,7 +34,8 @@ def analyze_audio(file_path):
 
 class Analyzer:
     def __init__(self, file_path):
-        """audio_info, tempo = analyze_audio(file_path)
+        """
+        audio_info, tempo = analyze_audio(file_path)
         with open("audio.txt", "wb") as f:
             f.write(pickle.dumps(audio_info))
         """
@@ -46,7 +47,7 @@ class Analyzer:
     
     def get_beat(self, time):
         sec = time / 1000.0
-        if sec > self.timestamps[0][0]:
+        if self.timestamps and sec > self.timestamps[0][0]:
             ts, strength = self.timestamps.pop(0)
             return True, strength
         

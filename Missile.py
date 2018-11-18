@@ -2,9 +2,10 @@ from Point2D import *
 from math import sin, cos
 from bazier import vec2d
 class Missile:
-    def __init__(self,x ,y, rad):
+    def __init__(self,x ,y, rad, player):
         self.position = vec2d(x, y)
         self.rad = rad
+        self.player = player
 
     def move(self, x, y):
         self.position.y +=  y

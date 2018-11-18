@@ -10,6 +10,7 @@ from teleporter import Teleporter
 import pickle
 import time
 import pygame.freetype
+import os
 
 HOST = '130.236.181.74'  # The server's hostname or IP address
 PORT = 65431        # The port used by the server
@@ -18,11 +19,9 @@ s.connect((HOST, PORT))
 s.settimeout(0.002)
 players = {}
 player_id_cnt = 0
-
+os.environ['SDL_VIDEO_CENTERED'] = '1'
 def parse_joystick_msg(msg):
     global player_id_cnt
-
-    print(msg)
     if "ping" in msg:
         return
     
@@ -32,13 +31,12 @@ def parse_joystick_msg(msg):
         if player_id_cnt < 10:
             st = "0" + str(player_id_cnt)
         s.send(st.encode())
-        players[st] = Player(10, screen.get_height() - 20, msg[1:])
+        players[st] = Player(300, screen.get_height() - 200, msg[1:])
         player_id_cnt += 1
         return
 
-    
     id = msg[:2]
-    if "CLOSED" in msg:
+    if "CLOSED" in msg or len(players) == 0:
         if id in players:
             del players[id]
         return
@@ -78,22 +76,18 @@ def rot_center(image, angle):
 if __name__ == "__main__":
     pygame.init()
     
-    file_path = "./assets/audio/Knock.wav"    
+    file_path = "./assets/audio/xeno.wav"    
     #play_sound(file_path)
 
     analyzer = Analyzer(file_path)
+    size = width, height = 1080, 920
 
-    size = width, height = 1080, 420
-    
-    speed = [2, 2]
-    black = 0, 0, 0
-
-    screen = pygame.display.set_mode(size)
-    
-    screen.get_height()
-
-    pygame.display.toggle_fullscreen()
-
+    info = pygame.display.Info() # You have to call this before pygame.display.set_mode()
+    width, height = info.current_w,info.current_h
+    window_width,window_height = width-10,height-50
+    screen = pygame.display.set_mode((window_width,window_height))
+    pygame.display.update()
+    black = 0, 0, 0    
 
     clock = pygame.time.get_ticks() + 50
     clock_temp = pygame.time.get_ticks() + 1000
@@ -103,7 +97,6 @@ if __name__ == "__main__":
     units.extend([Teleporter(10 + unit * 30, 20, 3) for unit in range(0, 5)])
 
     clock_2 = pygame.time.Clock()
-    prev_speed = 1
     tick = 0
 
     player_img = pygame.image.load("assets/img/charsmall.png")
@@ -111,7 +104,7 @@ if __name__ == "__main__":
 
     start_time = pygame.time.get_ticks()
 
-    GAME_FONT = pygame.freetype.Font("assets/fonts/Roboto-Italic.ttf", 24)
+    GAME_FONT = pygame.freetype.Font("assets/fonts/Roboto-Italic.ttf", 62)
     text_surface, rect = GAME_FONT.render("goo.gl/HTn5hU", (255, 255, 255))
     inited = False
     
@@ -121,7 +114,6 @@ if __name__ == "__main__":
                 unit.player = players[list(players.keys())[0]]
             inited = True
         
-
         t = pygame.time.get_ticks() -  start_time
         on_beat, strength = analyzer.get_beat(t)
 
@@ -175,10 +167,10 @@ if __name__ == "__main__":
             if occured_collision[0]:
                 missiles.remove(missile)
                 occured_collision[1].hit_points -= 100
-            elif missile.position.x > 1080 or missile.position.x < 0 or missile.position.y < 0 or missile.position.y > 480:
+            elif missile.position.x > width or missile.position.x < 0 or missile.position.y < 0 or missile.position.y > height:
                 missiles.remove(missile)
 
-        screen.blit(text_surface, (1080/2 - 100, 10))
+        screen.blit(text_surface, (width/2 - 100, 10))
         pygame.display.flip()
         pygame.display.update()
 
