@@ -12,7 +12,7 @@ import time
 import pygame.freetype
 import os, select
 
-HOST = '130.236.181.74'  # The server's hostname or IP address
+HOST = '130.236.181.72'  # The server's hostname or IP address
 PORT = 65431        # The port used by the server
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
@@ -207,7 +207,7 @@ if __name__ == "__main__":
 
         last_time = t
         if on_beat and [x for x in units if x.is_player and not x.dead]:
-            create_wave((window_width, window_height), 1, random.randint(1, 3), [x for x in units if x.is_player and not x.dead])
+            create_wave((window_width, window_height), 1, random.randint(1, 4), [x for x in units if x.is_player and not x.dead])
 
         screen.fill(black)
 

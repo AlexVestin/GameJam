@@ -25,17 +25,12 @@ def analyze_audio(file_path):
     return audio_info, tempo
 
 
-
-
-
-
 class Analyzer:
     def __init__(self, file_path):
         if False:
             audio_info, tempo = analyze_audio(file_path)
             with open(file_path[:-4] + ".txt", "wb") as f:
                 f.write(pickle.dumps(audio_info))
-        
         
         
         f = open(file_path[:-4] + ".txt", "rb")

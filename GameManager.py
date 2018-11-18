@@ -61,3 +61,4 @@ def create_wave(window_size, amount, unit_type, players):
         spawn_enemies(amount, unit_type, Enemy, players, window_size)
     elif unit_type == 3:
         spawn_enemies(amount, unit_type, Teleporter, players, window_size)
+  
