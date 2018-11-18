@@ -18,6 +18,8 @@ class Enemy:
         self.is_player = False
         self.player = player
         self.impact_damage = 0
+        self.pulse = False
+        self.prev_pulse = 1
         self.init()
 
     def init(self):
@@ -37,6 +39,12 @@ class Enemy:
             self.color = pygame.Color(0,128,128)
             self.impact_damage = 20
             self.set_path()
+
+    def reset_size(self):
+        if self.type == 1:
+            self.size = 10
+        else:
+            self.size = 3
 
     def set_path(self):
         if self.player:
@@ -75,7 +83,26 @@ class Enemy:
         if self.type == 1: self.hit_points = 200
         elif self.type == 2: self.hit_points = 100
 
+    def on_pulse(self):
+        if self.size <= 6 and self.prev_pulse != -1:
+            self.size += 1
+            self.prev_pulse = 1
+        else:
+            if self.size > 0:
+                self.size -= 1
+                self.prev_pulse = -1
+
+
+
     def update(self, onbeat):
+        if onbeat:
+            self.pulse = True
+            self.reset_size()
+            self.prev_pulse = 1
+
+        if self.pulse:
+            self.on_pulse()
+
         self.move(0, 1)
         if self.hit_points <= 0:
             self.dead = True

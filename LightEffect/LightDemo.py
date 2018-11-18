@@ -437,12 +437,12 @@ if __name__ == '__main__':
         if CreateLight.UPDATE:
 
             screen.fill((0, 0, 0, 255))
-            screen.blit(TEXTURE1, (0, 0))
+            #screen.blit(TEXTURE1, (0, 0))
             All.draw(screen)
             CreateLight.UPDATE = False
-            for shadow in shadows:
-                shadow.update(MOUSE_POS)
-                shadow.render_frame()
+            ##for shadow in shadows:
+              #  shadow.update(MOUSE_POS)
+               # shadow.render_frame()
 
             pygame.display.flip()
 

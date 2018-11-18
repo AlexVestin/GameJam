@@ -1,6 +1,5 @@
 
 import sys, pygame
-from LightSource import *
 from Player import *
 from enemy import *
 from GameManager import *
@@ -86,14 +85,14 @@ def parse_joystick_msg(msg):
             pass
         elif "RIGHTEND" in msg:
             pass
-        
+
         #right joystick
         if  msg[0] == "_":
             split_msg = msg.split(":")[0][1:]
             player.rotation = float(split_msg)
 
             #player.power = float(split_msg[2])
-        
+
         #left joystick
         if  msg[0] == "*":
             split_msg = msg.split(":")[0][1:]
@@ -122,10 +121,17 @@ def assign_player(unit, players):
 
 if __name__ == "__main__":
     pygame.init()
-    global UPDATE
-    UPDATE = False
+    size = width, height = 1080, 920
 
-    file_path = "./assets/audio/xeno.wav"
+    info = pygame.display.Info()  # You have to call this before pygame.display.set_mode()
+    width, height = info.current_w, info.current_h
+    window_width, window_height = width - 10, height - 50
+    screen = pygame.display.set_mode((window_width, window_height))
+    pygame.display.update()
+    black = 0, 0, 0
+
+
+    file_path = "./Assets/audio/Knock.wav"
     play_sound(file_path)
 
     analyzer = Analyzer(file_path)
@@ -143,19 +149,19 @@ if __name__ == "__main__":
 
 
     player_sprites = {
-        "white": pygame.image.load("assets/img/white.png"),
-        "blue": pygame.image.load("assets/img/blue.png"),
-        "yellow": pygame.image.load("assets/img/yellow.png"),
-        "pink": pygame.image.load("assets/img/pink.png"),
-        "green": pygame.image.load("assets/img/green.png"),
-        "red": pygame.image.load("assets/img/red.png")
+        "white": pygame.image.load("Assets/img/white.png"),
+        "blue": pygame.image.load("Assets/img/blue.png"),
+        "yellow": pygame.image.load("Assets/img/yellow.png"),
+        "pink": pygame.image.load("Assets/img/pink.png"),
+        "green": pygame.image.load("Assets/img/green.png"),
+        "red": pygame.image.load("Assets/img/red.png")
     }
 
     start_time = pygame.time.get_ticks()
 
-    GAME_FONT = pygame.freetype.Font("assets/fonts/Roboto-Italic.ttf", 62)
-    GAME_FONT_SMALL = pygame.freetype.Font("assets/fonts/Roboto-Italic.ttf", 30)
-    GAME_FONT_SMALLER = pygame.freetype.Font("assets/fonts/Roboto-Italic.ttf", 18)
+    GAME_FONT = pygame.freetype.Font("Assets/fonts/Roboto-Italic.ttf", 62)
+    GAME_FONT_SMALL = pygame.freetype.Font("Assets/fonts/Roboto-Italic.ttf", 30)
+    GAME_FONT_SMALLER = pygame.freetype.Font("Assets/fonts/Roboto-Italic.ttf", 18)
 
     text_surface, rect = GAME_FONT.render("goo.gl/HTn5hU", (255, 255, 255))
     inited = False
@@ -179,7 +185,8 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT: sys.exit()
 
         current = pygame.time.get_ticks()
-        
+
+
         last_time = t
         if on_beat and [x for x in units if x.is_player and not x.dead]:
 
@@ -233,7 +240,7 @@ if __name__ == "__main__":
         for player in [player for player in units if player.is_player]:
             if player.hit_points <= 0:
                 player.dead = True
-                units = [unit for unit in units if unit.id != player.id] 
+                units = [unit for unit in units if unit.id != player.id]
                 for unit in units:
                     if not unit.is_player and unit.player == player:
                         assign_player(unit, players)
@@ -259,9 +266,6 @@ if __name__ == "__main__":
             screen.blit(hp_text_surface, ( (i+1) * 250, 40))
             screen.blit(score_text_surface, ( (i+1) * 250, 78))
 
-        TIME_PASSED_SECONDS = pygame.time.Clock().tick()
-
-        FRAME += 1
         screen.blit(text_surface, (width/2 - 200, 10))
 
         pygame.display.flip()
