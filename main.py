@@ -21,9 +21,15 @@ s.settimeout(0.002)
 players = {}
 player_id_cnt = 0
 os.environ['SDL_VIDEO_CENTERED'] = '1'
-
-
 colors = ["red", "green", "blue", "white", "pink", "yellow"]
+colors_rgb = {
+    "red": (255, 0, 0),
+    "blue": (0, 0, 255),
+    "green": (0,255,0),
+    "white": (255,255,255),
+    "yellow": (255, 255, 0),
+    "pink": (255, 0, 255)
+}
 
 while 1:
     inputready, o, e = select.select([s],[],[], 0.0)
@@ -52,10 +58,9 @@ def parse_joystick_msg(msg):
                 players[st].color = color
                 break; 
 
-        return
-
         if not players[st].color:
             players[st].color = "blue"
+        return
 
     if not len(players):
         return
@@ -69,31 +74,32 @@ def parse_joystick_msg(msg):
         units = [x for x in units if x.id != id]
         return
 
-    player = players[id]
-    msg = msg[2:].split("|")[0]
+    if id in players:
+        player = players[id]
+        msg = msg[2:].split("|")[0]
 
-    if "LEFTSTART" in msg:
-        player.power = 22
-    elif "LEFTEND" in msg:
-        player.power = 0
-    elif "RIGHTSTART" in msg:
-        pass
-    elif "RIGHTEND" in msg:
-        pass
-    
-    #right joystick
-    if  msg[0] == "_":
-        split_msg = msg.split(":")[0][1:]
-        player.rotation = float(split_msg)
+        if "LEFTSTART" in msg:
+            player.power = 22
+        elif "LEFTEND" in msg:
+            player.power = 0
+        elif "RIGHTSTART" in msg:
+            pass
+        elif "RIGHTEND" in msg:
+            pass
+        
+        #right joystick
+        if  msg[0] == "_":
+            split_msg = msg.split(":")[0][1:]
+            player.rotation = float(split_msg)
 
-        #player.power = float(split_msg[2])
-    
-    #left joystick
-    if  msg[0] == "*":
-        split_msg = msg.split(":")[0][1:]
-        player.direction = float(split_msg)
-        player.power = 22
-        #player.power = float(split_msg[2])
+            #player.power = float(split_msg[2])
+        
+        #left joystick
+        if  msg[0] == "*":
+            split_msg = msg.split(":")[0][1:]
+            player.direction = float(split_msg)
+            player.power = 22
+            #player.power = float(split_msg[2])
 
 def rot_center(image, angle):
     """rotate an image while keeping its center and size"""
@@ -103,6 +109,16 @@ def rot_center(image, angle):
     rot_rect.center = rot_image.get_rect().center
     rot_image = rot_image.subsurface(rot_rect).copy()
     return rot_image
+
+
+def assign_player(unit, players):
+      if not unit.is_player and [unit for unit in units if unit.is_player and not unit.dead]:
+        if not unit.player or unit.player.dead:
+            _players = [unit for unit in units if  not unit.dead and unit.is_player ]
+            if players:
+                unit.player = _players[random.randint(0, len(players) - 1)]
+            else:
+                unit.player = None
 
 if __name__ == "__main__":
     pygame.init()
@@ -139,9 +155,10 @@ if __name__ == "__main__":
     clock = pygame.time.get_ticks() + 50
     clock_temp = pygame.time.get_ticks() + 1000
 
-    units.extend([Enemy(10 + unit * 30,20, 1) for unit in range(0, 12)])
-    units.extend([Enemy(10 + unit * 30, 20, 2) for unit in range(0, 30)])
-    units.extend([Teleporter(10 + unit * 30, 20, 3) for unit in range(0, 5)])
+    if False:
+        units.extend([Enemy(10 + unit * 30,20, 1) for unit in range(0, 12)])
+        units.extend([Enemy(10 + unit * 30, 20, 2) for unit in range(0, 30)])
+        units.extend([Teleporter(10 + unit * 30, 20, 3) for unit in range(0, 5)])
 
     clock_2 = pygame.time.Clock()
     tick = 0
@@ -165,6 +182,7 @@ if __name__ == "__main__":
     text_surface, rect = GAME_FONT.render("goo.gl/HTn5hU", (255, 255, 255))
     inited = False
 
+    last_time = 0
     while True:
         t = pygame.time.get_ticks() -  start_time
         on_beat, strength = analyzer.get_beat(t)
@@ -185,17 +203,16 @@ if __name__ == "__main__":
         current = pygame.time.get_ticks()
 
         All.update()
-
         if CreateLight.UPDATE:
-
             All.draw(screen)
             CreateLight.UPDATE = False
             for shadow in shadows:
                 shadow.render_frame()
+        
+        last_time = t
+        if on_beat and [x for x in units if x.is_player and not x.dead]:
 
-
-        if on_beat:
-            create_wave((window_width, window_height), 1, random.randint(1, 3))
+            create_wave((window_width, window_height), 1, random.randint(1, 3), [x for x in units if x.is_player and not x.dead])
 
         screen.fill(black)
 
@@ -206,36 +223,18 @@ if __name__ == "__main__":
 
             if p[1].alpha - 10 <= 0: particle.remove(p)
 
-        for key in players.keys():
-            player = players[key]
-           
-
-            if not player.dead:
-                player.joystick_pressed()
-                player.key_pressed()
-                player.shoot()
-                r_image = rot_center(player_sprites[player.color], ((player.rotation - (math.pi/2)) / math.pi) * 180 )
-                screen.blit(r_image, (player.position.x, player.position.y, 20, 20))
 
         for unit in units:
-            if not unit.is_player and [unit for unit in units if unit.is_player and not unit.dead]:
-                if not unit.player or unit.player.dead:
-                    _players = [unit for unit in units if  not unit.dead and unit.is_player ]
-                    if players:
-                        unit.player = _players[random.randint(0, len(players) - 1)]
-
+            assign_player(unit, players)
 
             unit.update(on_beat)
-            collision_with_player = player_unit_collision(unit, [players[key] for key in list(players.keys())])
+            collision_with_player = player_unit_collision(unit, [unit for unit in units if unit.is_player and not unit.dead])
             if collision_with_player[0]:
                 player = collision_with_player[1]
                 player.hit_points -= unit.impact_damage
 
                 if not unit.is_player:
                     unit.dead = True
-
-                if player.hit_points <= 0:
-                    player.dead = True
             
             if not unit.is_player:
                 pygame.draw.rect(screen, unit.color, pygame.Rect(unit.position.x, unit.position.y, unit.size, unit.size), unit.size)
@@ -251,21 +250,39 @@ if __name__ == "__main__":
 
                     # Draw each path
                 if occured_collision[1].hit_points < 0:
-                    unit.dead = True
-                    if unit in units:
-                        units.remove(unit)
+                    occured_collision[1].dead = True
+
+                    if occured_collision[1] in units:
+                        units.remove(occured_collision[1])
                     missile.player.score += unit.score_on_death 
 
             elif missile.position.x > width or missile.position.x < 0 or missile.position.y < 0 or missile.position.y > height:
                 missiles.remove(missile)
 
+        for player in [player for player in units if player.is_player]:
+            if player.hit_points <= 0:
+                player.dead = True
+                units = [unit for unit in units if unit.id != player.id] 
+                for unit in units:
+                    if not unit.is_player and unit.player == player:
+                        assign_player(unit, players)
+
+            if not player.dead:
+                player.joystick_pressed()
+                player.key_pressed()
+                player.shoot()
+                r_image = rot_center(player_sprites[player.color], ((player.rotation - (math.pi/2)) / math.pi) * 180 )
+                screen.blit(r_image, (player.position.x, player.position.y, 20, 20))
+
         for i, key in enumerate(players.keys()):
             player = players[key]
-            if player.hit_points <= 0 or player.dead:
-                units = [unit for unit in units if unit.id != player.id] 
             
-            #hp_text_surface, rect = GAME_FONT_SMALL.render(player.name + ": " + str(100*player.hit_points/player.max_hit_points).split(".")[0]+"%", (255, 255, 255))
-            hp_text_surface, rect = GAME_FONT_SMALL.render(player.name + ": " + str(player.hit_points), (255, 255, 255))
+            hp = 100*player.hit_points/player.max_hit_points
+            if hp < 0:
+                hp = 0
+
+            hp_text_surface, rect = GAME_FONT_SMALL.render(player.name + ": " + str(hp).split(".")[0]+"%", colors_rgb[player.color])
+            #hp_text_surface, rect = GAME_FONT_SMALL.render(player.name + ": " + str(player.hit_points), (255, 255, 255))
             
             score_text_surface, rect = GAME_FONT_SMALLER.render(str(player.score), (255, 255, 255))
             screen.blit(hp_text_surface, ( (i+1) * 250, 40))
