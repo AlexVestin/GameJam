@@ -21,7 +21,7 @@ class Enemy:
         if self.type == 1: #Boss
             self.color = pygame.Color(128,128,0)
             self.size = 10
-            self.speed = 2000
+            self.speed = 1000
             self.hitbox_size = 15
             self.set_path()
         else:
@@ -33,13 +33,13 @@ class Enemy:
 
     def set_path(self):
         if self.player:
-            player_vec = self.player.position - self.position
+            player_vec = vec2d(self.player.position.x, self.player.position.y) - self.position
             control_points = [vec2d(self.position.x, self.position.y),
-                            vec2d(self.position.x + random.randint(-200, 200),
+                              vec2d(self.position.x + random.randint(-200, 200),
                                     self.position.y + random.randint(-200, 200)) + player_vec,
-                            vec2d(self.position.x + random.randint(-200, 200),
+                              vec2d(self.position.x + random.randint(-200, 200),
                                     self.position.y + random.randint(-200, 200)) + player_vec,
-                            vec2d(self.position.x + random.randint(-200, 200),
+                              vec2d(self.position.x + random.randint(-200, 200),
                                     self.position.y + random.randint(-200, 200)) + player_vec]
             self.path = compute_bezier_points([(x.x, x.y) for x in control_points], self.speed)
             self.path.reverse()  # USE THIS AS PATH

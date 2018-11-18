@@ -26,7 +26,7 @@ class Teleporter:
     def teleport(self, player_pos):
         px, py = player_pos.x, player_pos.y
         x, y  = self.position.x, self.position.y
-        dx, dy = (px - x) * random.rand(), (dy - y) * random.rand()
+        dx, dy = (px - x) * random.random(), (py - y) * random.random()
         dx += random.randint(-30, 30)
         dy += random.randint(-30, 30)
         self.move(dx, dy)
