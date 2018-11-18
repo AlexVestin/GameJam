@@ -25,10 +25,10 @@ class Enemy:
             self.color = pygame.Color(128,128,0)
             self.size = 10
             self.speed = 1000
-            self.hitbox_size = 15
+            self.hitbox_size = 10
             self.set_path()
             self.score_on_death = 120
-            self.impact_damge = 80
+            self.impact_damage = 80
         else:
             self.size = 3
             self.score_on_death = 30
@@ -72,8 +72,8 @@ class Enemy:
         pass
 
     def health(self): # one his =-100
-        if self.type == 1: self.hit_points = 200
-        elif self.type == 2: self.hit_points = 100
+        if self.type == 1: self.hit_points = 120
+        elif self.type == 2: self.hit_points = 70
 
     def update(self, onbeat):
         self.move(0, 1)

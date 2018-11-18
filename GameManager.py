@@ -24,7 +24,7 @@ def collision(missile, units, pvp=False, players=[]):
 def player_unit_collision(unit, players):
     for player in players:
         rect_unit =  pygame.Rect(unit.position.x, unit.position.y, unit.hitbox_size, unit.hitbox_size)
-        player_unit    =  pygame.Rect(player.position.x,  player.position.y, player.hitbox_size, player.hitbox_size)
+        player_unit =  pygame.Rect(player.position.x,  player.position.y, player.hitbox_size, player.hitbox_size)
         
         if rect_unit.colliderect(player_unit) and unit != player:
             return True, player
