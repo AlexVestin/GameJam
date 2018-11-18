@@ -134,8 +134,7 @@ if __name__ == "__main__":
     black = 0, 0, 0
 
 
-    file_path = "./Assets/audio/Knock.wav"
-    play_sound(file_path)
+    file_path = "./assets/audio/Knock.wav"
 
     analyzer = Analyzer(file_path)
 
@@ -170,9 +169,17 @@ if __name__ == "__main__":
     text_surface, rect = GAME_FONT.render("goo.gl/HTn5hU", (255, 255, 255))
 
     inited = False
-
     last_time = 0
+
+    SONGS = ["Knock.wav", "House.wav", "xeno.wav"]
+    song_idx = 0
+    pygame.mixer.pre_init(44100, -16, 2, 2048) # setup mixer to avoid sound lag
+    pygame.mixer.init()
+    pygame.mixer.music.load(file_path)
+    pygame.mixer.music.play(-1)
+
     while True:
+
         t = pygame.time.get_ticks() -  start_time
         on_beat, strength = analyzer.get_beat(t)
 
@@ -188,7 +195,13 @@ if __name__ == "__main__":
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
-
+            
+            if event.type == pygame.KEYUP:
+                if event.key==pygame.K_RIGHT:
+                    pygame.mixer.music.load("./assets/audio/"+ SONGS[song_idx % len(SONGS)])
+                    pygame.mixer.music.play(-1)
+                    song_idx += 1
+                    analyzer.get_from_file("./assets/audio/"+ SONGS[song_idx % len(SONGS)])
         current = pygame.time.get_ticks()
 
 

@@ -3,15 +3,8 @@ from librosa.onset import onset_detect, onset_strength
 from librosa import load, frames_to_time, stft
 from librosa.beat import beat_track
 import numpy as np
-import pygame
 import pickle
-
-def play_sound(file_path):
-    pygame.mixer.pre_init(44100, -16, 2, 2048) # setup mixer to avoid sound lag
-    pygame.mixer.init()
-    pygame.mixer.music.load(file_path)
-    pygame.mixer.music.play(-1)
-
+    
 def find_nearest(array, value):
     return (np.abs(array - value)).argmin()
 
@@ -32,23 +25,34 @@ def analyze_audio(file_path):
     return audio_info, tempo
 
 
+
+
+
+
 class Analyzer:
     def __init__(self, file_path):
-        """
-        audio_info, tempo = analyze_audio(file_path)
-        with open("audio.txt", "wb") as f:
-            f.write(pickle.dumps(audio_info))
-        """
-        tempo = 112.3471
-        f = open("audio.txt", "rb")
+        if False:
+            audio_info, tempo = analyze_audio(file_path)
+            with open(file_path[:-4] + ".txt", "wb") as f:
+                f.write(pickle.dumps(audio_info))
+        
+        
+        
+        f = open(file_path[:-4] + ".txt", "rb")
         self.timestamps = pickle.load(f)
         f.close()
-
+        
+    def get_from_file(self,file_path):
+        f = open(file_path[:-4] + ".txt", "rb")
+        self.timestamps = pickle.load(f)
+        f.close()
     
     def get_beat(self, time):
         sec = time / 1000.0
-        if self.timestamps and sec > self.timestamps[0][0]:
+
+        strength = 0
+        while self.timestamps and sec > self.timestamps[0][0]:
             ts, strength = self.timestamps.pop(0)
-            return True, strength
         
-        return False, 0
+        return strength != 0, strength
+        

@@ -24,6 +24,7 @@ class Player():
         self.max_hit_points = 200
         self.hitbox_size = 20
         self.dead = False
+        self.impact_damage = 100
         self.score_on_death = 500
         self.is_player = True
 
