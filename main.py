@@ -22,6 +22,7 @@ player_id_cnt = 0
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 colors = ["red", "green", "blue", "white", "pink", "yellow"]
 
+
 colors_rgb = {
     "red": (255, 0, 0),
     "blue": (0, 0, 255),
@@ -30,11 +31,12 @@ colors_rgb = {
     "yellow": (255, 255, 0),
     "pink": (255, 0, 255)
 }
-
-while 1:
-    inputready, o, e = select.select([s],[],[], 0.0)
-    if len(inputready)==0: break
-    for s in inputready: s.recv(1)
+for i in range(20):
+    try:
+        print(s.recv(16))
+    except:
+        pass
+    print("------------------------------------------")
 
 def parse_joystick_msg(msg):
     global player_id_cnt
@@ -75,6 +77,7 @@ def parse_joystick_msg(msg):
             del players[id]
 
         return
+
 
     if id in players:
         player = players[id]
@@ -118,7 +121,7 @@ def assign_player(unit, players):
         if not unit.player or unit.player.dead:
             _players = [unit for unit in units if  not unit.dead and unit.is_player ]
             if players:
-                unit.player = _players[random.randint(0, len(players) - 1)]
+                unit.player = _players[random.randint(0, len(_players) - 1)]
             else:
                 unit.player = None
 
@@ -195,7 +198,7 @@ if __name__ == "__main__":
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
-            
+
             if event.type == pygame.KEYUP:
                 if event.key==pygame.K_RIGHT:
                     pygame.mixer.music.load("./assets/audio/"+ SONGS[song_idx % len(SONGS)])
@@ -265,7 +268,7 @@ if __name__ == "__main__":
             if not player.dead:
                 player.joystick_pressed()
                 player.key_pressed()
-                player.shoot()
+                player.update(on_beat)
                 r_image = rot_center(player_sprites[player.color], ((player.rotation - (math.pi/2)) / math.pi) * 180 )
                 screen.blit(r_image, (player.position.x, player.position.y, 20, 20))
 
