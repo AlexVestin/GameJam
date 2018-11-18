@@ -21,6 +21,7 @@ players = {}
 player_id_cnt = 0
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 colors = ["red", "green", "blue", "white", "pink", "yellow"]
+
 colors_rgb = {
     "red": (255, 0, 0),
     "blue": (0, 0, 255),
@@ -69,8 +70,10 @@ def parse_joystick_msg(msg):
         return
     if "CLOSED" in msg:
         if id in players:
+            if players[id] in units:
+                units.remove(players[id])
             del players[id]
-        units = [x for x in units if x.id != id]
+
         return
 
     if id in players:
@@ -163,7 +166,9 @@ if __name__ == "__main__":
     GAME_FONT_SMALL = pygame.freetype.Font("Assets/fonts/Roboto-Italic.ttf", 30)
     GAME_FONT_SMALLER = pygame.freetype.Font("Assets/fonts/Roboto-Italic.ttf", 18)
 
+
     text_surface, rect = GAME_FONT.render("goo.gl/HTn5hU", (255, 255, 255))
+
     inited = False
 
     last_time = 0
@@ -189,7 +194,6 @@ if __name__ == "__main__":
 
         last_time = t
         if on_beat and [x for x in units if x.is_player and not x.dead]:
-
             create_wave((window_width, window_height), 1, random.randint(1, 3), [x for x in units if x.is_player and not x.dead])
 
         screen.fill(black)
@@ -213,7 +217,8 @@ if __name__ == "__main__":
 
                 if not unit.is_player:
                     unit.dead = True
-            
+                    units.remove(unit)
+
             if not unit.is_player:
                 pygame.draw.rect(screen, unit.color, pygame.Rect(unit.position.x, unit.position.y, unit.size, unit.size), unit.size)
 
@@ -225,7 +230,6 @@ if __name__ == "__main__":
             if occured_collision[0]:
                 missiles.remove(missile)
                 occured_collision[1].hit_points -= 100
-
                     # Draw each path
                 if occured_collision[1].hit_points < 0:
                     occured_collision[1].dead = True
@@ -240,7 +244,7 @@ if __name__ == "__main__":
         for player in [player for player in units if player.is_player]:
             if player.hit_points <= 0:
                 player.dead = True
-                units = [unit for unit in units if unit.id != player.id]
+                units.remove(player)
                 for unit in units:
                     if not unit.is_player and unit.player == player:
                         assign_player(unit, players)
