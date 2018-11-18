@@ -17,6 +17,13 @@ class Player():
         self.direction = 0
         self.power = 0
         self.rotation = 0
+        self.hit_points = 1000
+        self.hitbox_size = 20
+        self.dead = False
+        self.is_player = True
+
+    def update(self, on_beat):
+        pass
 
     def move(self, x, y):
         self.position.x += x

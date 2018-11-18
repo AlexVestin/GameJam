@@ -10,9 +10,9 @@ from teleporter import Teleporter
 import pickle
 import time
 import pygame.freetype
-import os
+import os, select
 
-HOST = '130.236.181.74'  # The server's hostname or IP address
+HOST = '130.236.181.72'  # The server's hostname or IP address
 PORT = 65431        # The port used by the server
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
@@ -20,6 +20,12 @@ s.settimeout(0.002)
 players = {}
 player_id_cnt = 0
 os.environ['SDL_VIDEO_CENTERED'] = '1'
+
+while 1:
+    inputready, o, e = select.select([s],[],[], 0.0)
+    if len(inputready)==0: break
+    for s in inputready: s.recv(1)
+
 def parse_joystick_msg(msg):
     global player_id_cnt
     if "ping" in msg:
@@ -33,13 +39,18 @@ def parse_joystick_msg(msg):
         s.send(st.encode())
         players[st] = Player(300, screen.get_height() - 200, msg[1:])
         player_id_cnt += 1
+        units.append(players[st])
+        return
+    
+    if not len(players):
         return
 
     id = msg[:2]
-    if "CLOSED" in msg or len(players) == 0:
+    if "CLOSED" in msg:
         if id in players:
             del players[id]
         return
+
     player = players[id]
     msg = msg[2:].split("|")[0]
 
@@ -105,6 +116,7 @@ if __name__ == "__main__":
     start_time = pygame.time.get_ticks()
 
     GAME_FONT = pygame.freetype.Font("assets/fonts/Roboto-Italic.ttf", 62)
+    GAME_FONT_SMALL = pygame.freetype.Font("assets/fonts/Roboto-Italic.ttf", 30)
     text_surface, rect = GAME_FONT.render("goo.gl/HTn5hU", (255, 255, 255))
     inited = False
     
@@ -155,10 +167,19 @@ if __name__ == "__main__":
 
         for unit in units:
             unit.update(on_beat)
+
+            collision_with_player = player_unit_collision(unit, [players[key] for key in list(players.keys())])
+            if collision_with_player[0]:
+                player = collision_with_player[1]
+                player.hit_points -= 10
+                unit.dead = True
+
             # Draw each path
             if unit.dead:
                 units.remove(unit)
-            pygame.draw.rect(screen, unit.color, pygame.Rect(unit.position.x, unit.position.y, unit.size, unit.size), unit.size)
+            
+            if not unit.is_player:
+                pygame.draw.rect(screen, unit.color, pygame.Rect(unit.position.x, unit.position.y, unit.size, unit.size), unit.size)
 
         for missile in missiles:
             missile.update()
@@ -170,7 +191,12 @@ if __name__ == "__main__":
             elif missile.position.x > width or missile.position.x < 0 or missile.position.y < 0 or missile.position.y > height:
                 missiles.remove(missile)
 
+        for i, key in enumerate(players.keys()):
+            player = players[key]
+            hp_text_surface, rect = GAME_FONT_SMALL.render(str(player.hit_points), (255, 255, 255))
+            screen.blit(hp_text_surface, ( (i+2) * 100, 10))
         screen.blit(text_surface, (width/2 - 100, 10))
+        
         pygame.display.flip()
         pygame.display.update()
 

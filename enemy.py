@@ -13,9 +13,9 @@ class Enemy:
         self.color = None
         self.speed = 0
         self.hitbox_size = 0
+        self.is_player = False
         self.player = player
         self.init()
-
 
     def init(self):
         if self.type == 1: #Boss
