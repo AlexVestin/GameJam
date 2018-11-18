@@ -4,6 +4,7 @@ import random
 class Enemy:
     def __init__(self, x, y, type, player = None):
         self.position = vec2d(x, y)
+        self.id = None
         self.type = type
         self.hit_points = 0
         self.health()

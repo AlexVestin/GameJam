@@ -21,6 +21,7 @@ players = {}
 player_id_cnt = 0
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 
+
 while 1:
     inputready, o, e = select.select([s],[],[], 0.0)
     if len(inputready)==0: break
@@ -28,16 +29,18 @@ while 1:
 
 def parse_joystick_msg(msg):
     global player_id_cnt
+    global units
+
     if "ping" in msg:
         return
     
     if msg[0] == ";":
-        msg = msg.split("|")
+        msg = msg.split("|")[0]
         st = ""
         if player_id_cnt < 10:
             st = "0" + str(player_id_cnt)
         s.send(st.encode())
-        players[st] = Player(300, screen.get_height() - 200, msg[1:])
+        players[st] = Player(300, screen.get_height() - 200, msg[1:], st)
         player_id_cnt += 1
         units.append(players[st])
         return
@@ -46,12 +49,12 @@ def parse_joystick_msg(msg):
         return
 
     id = msg[:2]
-
     if len(players) == 0:
         return
     if "CLOSED" in msg:
         if id in players:
             del players[id]
+        units = [x for x in units if x.id != id]
         return
 
     player = players[id]
@@ -173,7 +176,7 @@ if __name__ == "__main__":
             #if on_beat:
             #    create_wave(player)
             r_image = rot_center(player_img, ((player.rotation - (math.pi/2)) / math.pi) * 180 )
-            screen.blit(r_image, (player.position.x - 10, player.position.y- 10, 10, 10))
+            screen.blit(r_image, (player.position.x, player.position.y, 20, 20))
 
         #pygame.draw.rect(screen, pygame.Color(0,0,128), pygame.Rect(player.position.x, player.position.y, 12, 12), 5)
 
@@ -184,7 +187,8 @@ if __name__ == "__main__":
             if collision_with_player[0]:
                 player = collision_with_player[1]
                 player.hit_points -= 10
-                unit.dead = True
+                if not unit.is_player:
+                    unit.dead = True
 
             # Draw each path
             if unit.dead:
@@ -205,8 +209,8 @@ if __name__ == "__main__":
 
         for i, key in enumerate(players.keys()):
             player = players[key]
-            hp_text_surface, rect = GAME_FONT_SMALL.render(str(player.hit_points), (255, 255, 255))
-            screen.blit(hp_text_surface, ( (i+2) * 100, 10))
+            hp_text_surface, rect = GAME_FONT_SMALL.render(player.name + ": " + str(player.hit_points), (255, 255, 255))
+            screen.blit(hp_text_surface, ( (i+1) * 250, 10))
         screen.blit(text_surface, (width/2 - 100, 10))
         
         pygame.display.flip()

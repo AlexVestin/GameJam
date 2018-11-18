@@ -6,8 +6,9 @@ from bazier import vec2d
 import math
 
 class Player():
-    def __init__(self, x, y, name):
+    def __init__(self, x, y, name, id):
         self.name = name
+        self.id = id
         self.position = vec2d(x, y)
         self.points = 0
         self.cooldown = 75
@@ -31,7 +32,7 @@ class Player():
 
     def shoot(self):
         if self.check_cooldown():
-            missiles.append(Missile(self.position.x, self.position.y, self.rotation, self))
+            missiles.append(Missile(self.position.x + 10, self.position.y + 10, self.rotation, self))
 
     def joystick_pressed(self):
         dx = math.cos(self.direction) * self.power / 12

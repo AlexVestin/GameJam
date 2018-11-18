@@ -1,11 +1,12 @@
 from Point2D import *
 from bazier import *
-import random
+import random, time
 
 class Teleporter:
     def __init__(self, x, y, type, player = None):
         self.position = vec2d(x, y)
         self.type = type
+        self.id = None
         self.hit_points = 10
         self.health()
         self.path = []
@@ -19,6 +20,7 @@ class Teleporter:
         self.noise = 100
         self.is_player = False
         self.jump_cd_amt = 8
+        self.time_since_beat = 0
         self.init()
         
     def init(self):
@@ -31,7 +33,6 @@ class Teleporter:
         px, py = player_pos.x, player_pos.y
         x, y  = self.position.x, self.position.y
         dx, dy = int((px - x) * random.random() * self.amt), int((py - y) * random.random() * self.amt)
-        print(dx, dy)
         dx += random.randint(-self.noise, self.noise)
         dy += random.randint(-self.noise, self.noise)
 
@@ -45,7 +46,8 @@ class Teleporter:
         if self.type == 1: self.hit_points = 200
         elif self.type == 2: self.hit_points = 100
 
-    def update(self, on_beat):
+    def update(self, on_beat, t = 0):
+         
         if on_beat:
             self.jump_cd -= 1
 
