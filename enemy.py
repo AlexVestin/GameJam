@@ -26,7 +26,7 @@ class Enemy:
         if self.type == 1: #Boss
             self.color = pygame.Color(128,128,0)
             self.size = 10
-            self.speed = 1000
+            self.speed = 500
             self.hitbox_size = 10
             self.set_path()
             self.score_on_death = 120
@@ -35,7 +35,7 @@ class Enemy:
             self.size = 3
             self.score_on_death = 30
             self.hitbox_size = 8
-            self.speed = 500
+            self.speed = 200
             self.color = pygame.Color(0,128,128)
             self.impact_damage = 20
             self.set_path()
@@ -94,7 +94,7 @@ class Enemy:
 
 
 
-    def update(self, onbeat):
+    def update(self, onbeat, strength):
         if onbeat:
             self.pulse = True
             self.reset_size()

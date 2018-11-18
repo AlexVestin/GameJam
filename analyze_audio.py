@@ -10,9 +10,20 @@ def find_nearest(array, value):
 
 def analyze_audio(file_path):
     data, fs = load(file_path)
+    print(data.shape[0] / fs)
+
+
     tempo, beats = beat_track(y=data, sr=fs)
+    print(tempo)
+    l = 60 * fs * 32 / tempo
+    abs_data = np.abs(data)
+    for i in range(int(data.shape[0] / l)):
+        print(np.average(abs_data[i*int(l):(i+1)*int(l)]))
+    return
     strength   = onset_strength(data, fs)
     timestamps = frames_to_time(beats, sr=fs)
+
+    first_ts = timestamps[0]
     times = frames_to_time(np.arange(len(strength)))    
     MAX_STRENGTH = np.amax(strength)
 
@@ -23,11 +34,6 @@ def analyze_audio(file_path):
         audio_info.append((timestamp, alpha))
     
     return audio_info, tempo
-
-
-
-
-
 
 class Analyzer:
     def __init__(self, file_path):

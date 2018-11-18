@@ -21,7 +21,7 @@ class Player():
         self.rotation = 0
         self.hit_points = 200
         self.score = 0
-        self.bullets = 8
+        self.bullets = 1
         self.max_hit_points = 200
         self.impact_damage = 100
         self.hitbox_size = 20
@@ -30,9 +30,11 @@ class Player():
         self.score_on_death = 500
         self.is_player = True
         self.power_up = 0
+        self.time = 0
 
-    def update(self, on_beat):
+    def update(self, on_beat, strength):
         self.shoot()
+        self.time += 1
 
         if self.score >= 1000:
             self.power_up = 1
