@@ -13,6 +13,7 @@ class Enemy:
         self.dead = False
         self.color = None
         self.speed = 0
+        self.score_on_death = 0
         self.hitbox_size = 0
         self.is_player = False
         self.player = player
@@ -26,9 +27,11 @@ class Enemy:
             self.speed = 1000
             self.hitbox_size = 15
             self.set_path()
+            self.score_on_death = 120
             self.impact_damge = 80
         else:
             self.size = 3
+            self.score_on_death = 30
             self.hitbox_size = 8
             self.speed = 500
             self.color = pygame.Color(0,128,128)

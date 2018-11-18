@@ -12,16 +12,19 @@ class Player():
         self.position = vec2d(x, y)
         self.points = 0
         self.cooldown = 75
+        self.color = None
         self.last_fired = pygame.time.get_ticks()
         self.left_joystick_down = False
         self.right_joystick_down = False
         self.direction = 0
         self.power = 0
         self.rotation = 0
-        self.hit_points = 1000
-        self.max_hit_points = 1000
+        self.hit_points = 200
+        self.score = 0
+        self.max_hit_points = 200
         self.hitbox_size = 20
         self.dead = False
+        self.score_on_death = 500
         self.is_player = True
 
     def update(self, on_beat):

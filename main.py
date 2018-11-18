@@ -12,7 +12,7 @@ import time
 import pygame.freetype
 import os, select
 
-HOST = '130.236.181.72'  # The server's hostname or IP address
+HOST = '130.236.181.74'  # The server's hostname or IP address
 PORT = 65431        # The port used by the server
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((HOST, PORT))
@@ -20,6 +20,9 @@ s.settimeout(0.002)
 players = {}
 player_id_cnt = 0
 os.environ['SDL_VIDEO_CENTERED'] = '1'
+
+
+colors = ["red", "green", "blue", "white", "pink", "yellow"]
 
 while 1:
     inputready, o, e = select.select([s],[],[], 0.0)
@@ -42,8 +45,17 @@ def parse_joystick_msg(msg):
         players[st] = Player(300, screen.get_height() - 200, msg[1:], st)
         player_id_cnt += 1
         units.append(players[st])
+
+        for color in colors:
+            if color not in [unit.color for unit in units if unit.is_player]:
+                players[st].color = color
+                break; 
+
         return
-    
+
+        if not players[st].color:
+            players[st].color = "blue"
+
     if not len(players):
         return
 
@@ -117,19 +129,26 @@ if __name__ == "__main__":
     clock_2 = pygame.time.Clock()
     tick = 0
 
-    player_img = pygame.image.load("assets/img/charsmall.png")
-    player_rect = player_img.get_rect()
+
+    player_sprites = {
+        "white": pygame.image.load("assets/img/white.png"),
+        "blue": pygame.image.load("assets/img/blue.png"),
+        "yellow": pygame.image.load("assets/img/yellow.png"),
+        "pink": pygame.image.load("assets/img/pink.png"),
+        "green": pygame.image.load("assets/img/green.png"),
+        "red": pygame.image.load("assets/img/red.png")
+    }
 
     start_time = pygame.time.get_ticks()
 
     GAME_FONT = pygame.freetype.Font("assets/fonts/Roboto-Italic.ttf", 62)
     GAME_FONT_SMALL = pygame.freetype.Font("assets/fonts/Roboto-Italic.ttf", 30)
+    GAME_FONT_SMALLER = pygame.freetype.Font("assets/fonts/Roboto-Italic.ttf", 18)
+
     text_surface, rect = GAME_FONT.render("goo.gl/HTn5hU", (255, 255, 255))
     inited = False
 
     while True:
-
-
         t = pygame.time.get_ticks() -  start_time
         on_beat, strength = analyzer.get_beat(t)
 
@@ -162,16 +181,17 @@ if __name__ == "__main__":
 
         for key in players.keys():
             player = players[key]
-            player.joystick_pressed()
-            player.key_pressed()
-            player.shoot()
+           
 
             if not player.dead:
-                r_image = rot_center(player_img, ((player.rotation - (math.pi/2)) / math.pi) * 180 )
+                player.joystick_pressed()
+                player.key_pressed()
+                player.shoot()
+                r_image = rot_center(player_sprites[player.color], ((player.rotation - (math.pi/2)) / math.pi) * 180 )
                 screen.blit(r_image, (player.position.x, player.position.y, 20, 20))
 
         for unit in units:
-            if not unit.is_player:
+            if not unit.is_player and [unit for unit in units if unit.is_player and not unit.dead]:
                 if not unit.player or unit.player.dead:
                     _players = [unit for unit in units if  not unit.dead and unit.is_player ]
                     if players:
@@ -189,10 +209,6 @@ if __name__ == "__main__":
 
                 if player.hit_points <= 0:
                     player.dead = True
-
-            # Draw each path
-            if unit.dead:
-                units.remove(unit)
             
             if not unit.is_player:
                 pygame.draw.rect(screen, unit.color, pygame.Rect(unit.position.x, unit.position.y, unit.size, unit.size), unit.size)
@@ -201,16 +217,32 @@ if __name__ == "__main__":
             missile.update()
             occured_collision = collision(missile, units)
             pygame.draw.rect(screen, pygame.Color(128, 0, 0), pygame.Rect(missile.position.x, missile.position.y, 3, 3), 3)
+            
             if occured_collision[0]:
                 missiles.remove(missile)
                 occured_collision[1].hit_points -= 100
+
+                    # Draw each path
+                if occured_collision[1].hit_points < 0:
+                    unit.dead = True
+                    if unit in units:
+                        units.remove(unit)
+                    missile.player.score += unit.score_on_death 
+
             elif missile.position.x > width or missile.position.x < 0 or missile.position.y < 0 or missile.position.y > height:
                 missiles.remove(missile)
 
         for i, key in enumerate(players.keys()):
             player = players[key]
-            hp_text_surface, rect = GAME_FONT_SMALL.render(player.name + ": " + str(100*player.hit_points/player.max_hit_points).split(".")[0]+"%", (255, 255, 255))
-            screen.blit(hp_text_surface, ( (i+1) * 250, 10))
+            if player.hit_points <= 0 or player.dead:
+                units = [unit for unit in units if unit.id != player.id] 
+            
+            #hp_text_surface, rect = GAME_FONT_SMALL.render(player.name + ": " + str(100*player.hit_points/player.max_hit_points).split(".")[0]+"%", (255, 255, 255))
+            hp_text_surface, rect = GAME_FONT_SMALL.render(player.name + ": " + str(player.hit_points), (255, 255, 255))
+            
+            score_text_surface, rect = GAME_FONT_SMALLER.render(str(player.score), (255, 255, 255))
+            screen.blit(hp_text_surface, ( (i+1) * 250, 40))
+            screen.blit(score_text_surface, ( (i+1) * 250, 78))
         screen.blit(text_surface, (width/2 - 200, 10))
         
         pygame.display.flip()

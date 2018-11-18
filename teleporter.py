@@ -16,6 +16,7 @@ class Teleporter:
         self.speed = 0
         self.hitbox_size = 20
         self.player = player
+        self.score_on_death = 90
         self.amt = 0.4
         self.noise = 100
         self.is_player = False
@@ -28,7 +29,7 @@ class Teleporter:
         self.color = pygame.Color(128,255,80)
         self.size = 10
         self.speed = 2000
-        self.jump_cd = random.randint(1, self.jump_cd_amt)
+        self.jump_cd = self.jump_cd_amt
     
     def teleport(self, player_pos):
         px, py = player_pos.x, player_pos.y
@@ -55,7 +56,7 @@ class Teleporter:
             if self.player and self.jump_cd == 0:
                 #if self.jump_cd == 0:
                 self.teleport(self.player.position)
-                self.jump_cd = random.randint(1, self.jump_cd_amt)
+                self.jump_cd = self.jump_cd_amt
 
         if self.hit_points <= 0:
             self.dead = True
