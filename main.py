@@ -122,28 +122,6 @@ def assign_player(unit, players):
 
 if __name__ == "__main__":
     pygame.init()
-
-    LIGHT_GROUP = pygame.sprite.Group()
-    All = pygame.sprite.RenderUpdates()
-    ShowLight.containers = LIGHT_GROUP, All
-    ShowLight.images = pygame.Surface((1, 1), 32)
-
-    for light in LIGHTS:
-        if light[0] == 'Spotlight5':
-            threading.Timer(random.randint(2, 7), ShowLight, args=(light,)).start()
-        else:
-            ShowLight(light)
-
-    def segment_adjustment(polygon):
-        segments = ALL_SEGMENTS.copy()
-        for seg in polygon:
-            segments.remove(seg)
-        return segments
-
-    shadows = [Shadow(segment_adjustment(POLYGON2), static_=True, location_=(370, 94)),    # LIGHT1
-               Shadow(segment_adjustment(POLYGON1), static_=True, location_=(150, 185)),   # LIGHT6                   # LIGHT5
-               ]
-
     global UPDATE
     UPDATE = False
 
@@ -201,13 +179,6 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT: sys.exit()
 
         current = pygame.time.get_ticks()
-
-        All.update()
-        if CreateLight.UPDATE:
-            All.draw(screen)
-            CreateLight.UPDATE = False
-            for shadow in shadows:
-                shadow.render_frame()
         
         last_time = t
         if on_beat and [x for x in units if x.is_player and not x.dead]:
