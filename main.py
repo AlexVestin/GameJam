@@ -1,5 +1,6 @@
 
 import sys, pygame
+from LightSource import *
 from Player import *
 from enemy import *
 from GameManager import *
@@ -105,19 +106,35 @@ def rot_center(image, angle):
 
 if __name__ == "__main__":
     pygame.init()
-    
+
+    LIGHT_GROUP = pygame.sprite.Group()
+    All = pygame.sprite.RenderUpdates()
+    ShowLight.containers = LIGHT_GROUP, All
+    ShowLight.images = pygame.Surface((1, 1), 32)
+
+    for light in LIGHTS:
+        if light[0] == 'Spotlight5':
+            threading.Timer(random.randint(2, 7), ShowLight, args=(light,)).start()
+        else:
+            ShowLight(light)
+
+    def segment_adjustment(polygon):
+        segments = ALL_SEGMENTS.copy()
+        for seg in polygon:
+            segments.remove(seg)
+        return segments
+
+    shadows = [Shadow(segment_adjustment(POLYGON2), static_=True, location_=(370, 94)),    # LIGHT1
+               Shadow(segment_adjustment(POLYGON1), static_=True, location_=(150, 185)),   # LIGHT6                   # LIGHT5
+               ]
+
+    global UPDATE
+    UPDATE = False
+
     file_path = "./assets/audio/xeno.wav"
     play_sound(file_path)
 
     analyzer = Analyzer(file_path)
-    size = width, height = 1080, 920
-
-    info = pygame.display.Info() # You have to call this before pygame.display.set_mode()
-    width, height = info.current_w,info.current_h
-    window_width,window_height = width-10,height-50
-    screen = pygame.display.set_mode((window_width,window_height))
-    pygame.display.update()
-    black = 0, 0, 0
 
     clock = pygame.time.get_ticks() + 50
     clock_temp = pygame.time.get_ticks() + 1000
@@ -166,7 +183,17 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT: sys.exit()
 
         current = pygame.time.get_ticks()
-        
+
+        All.update()
+
+        if CreateLight.UPDATE:
+
+            All.draw(screen)
+            CreateLight.UPDATE = False
+            for shadow in shadows:
+                shadow.render_frame()
+
+
         if on_beat:
             create_wave((window_width, window_height), 1, random.randint(1, 3))
 
@@ -196,16 +223,16 @@ if __name__ == "__main__":
                     _players = [unit for unit in units if  not unit.dead and unit.is_player ]
                     if players:
                         unit.player = _players[random.randint(0, len(players) - 1)]
-                    
+
 
             unit.update(on_beat)
             collision_with_player = player_unit_collision(unit, [players[key] for key in list(players.keys())])
             if collision_with_player[0]:
                 player = collision_with_player[1]
                 player.hit_points -= unit.impact_damage
-                
+
                 if not unit.is_player:
-                    unit.dead = True   
+                    unit.dead = True
 
                 if player.hit_points <= 0:
                     player.dead = True
@@ -243,8 +270,12 @@ if __name__ == "__main__":
             score_text_surface, rect = GAME_FONT_SMALLER.render(str(player.score), (255, 255, 255))
             screen.blit(hp_text_surface, ( (i+1) * 250, 40))
             screen.blit(score_text_surface, ( (i+1) * 250, 78))
+
+        TIME_PASSED_SECONDS = pygame.time.Clock().tick()
+
+        FRAME += 1
         screen.blit(text_surface, (width/2 - 200, 10))
-        
+
         pygame.display.flip()
         pygame.display.update()
 
