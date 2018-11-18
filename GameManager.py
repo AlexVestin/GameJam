@@ -3,6 +3,7 @@ from Player import *
 from Missile import *
 from enemy import *
 from Particle import *
+from teleporter import Teleporter
 
 particle = [] # <= (UNIT, set of Particles())
 missiles = []
@@ -30,5 +31,13 @@ def player_unit_collision(unit, players):
 
     return False, None
 
-def create_wave(player, amount = 1, ):
-    units.extend([Enemy(10 + unit * 30,20, 1, player) for unit in range(0, amount)])
+def create_wave(window_size, amount = 1, unit_type = 1):
+    x = random.randint(0, window_size[0]) 
+    y = random.randint(0, window_size[1])
+
+    if unit_type == 1:
+        units.extend([Enemy(random.randint(0, window_size[0]) , random.randint(0, window_size[1]), 1) for unit in range(0, amount)])
+    elif unit_type == 2:
+        units.extend([Enemy(random.randint(0, window_size[0]) ,random.randint(0, window_size[1]), 2) for unit in range(0, amount)])
+    elif unit_type == 3:
+        units.extend([Teleporter(random.randint(0, window_size[0]),random.randint(0, window_size[1]), 1) for unit in range(0, amount)])

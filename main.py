@@ -21,7 +21,6 @@ players = {}
 player_id_cnt = 0
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 
-
 while 1:
     inputready, o, e = select.select([s],[],[], 0.0)
     if len(inputready)==0: break
@@ -129,10 +128,7 @@ if __name__ == "__main__":
     inited = False
 
     while True:
-        if not inited and len(players) >= 1:
-            for unit in units:
-                unit.player = players[list(players.keys())[0]]
-            inited = True
+
 
         t = pygame.time.get_ticks() -  start_time
         on_beat, strength = analyzer.get_beat(t)
@@ -152,12 +148,8 @@ if __name__ == "__main__":
 
         current = pygame.time.get_ticks()
         
-        """
-        current = pygame.time.get_ticks()
-        if current >= clock_temp:
-            clock_temp = current + 1000
-            create_wave()
-        """
+        if on_beat:
+            create_wave((window_width, window_height), 1, random.randint(1, 3))
 
         screen.fill(black)
 
@@ -173,22 +165,30 @@ if __name__ == "__main__":
             player.joystick_pressed()
             player.key_pressed()
             player.shoot()
-            #if on_beat:
-            #    create_wave(player)
-            r_image = rot_center(player_img, ((player.rotation - (math.pi/2)) / math.pi) * 180 )
-            screen.blit(r_image, (player.position.x, player.position.y, 20, 20))
 
-        #pygame.draw.rect(screen, pygame.Color(0,0,128), pygame.Rect(player.position.x, player.position.y, 12, 12), 5)
+            if not player.dead:
+                r_image = rot_center(player_img, ((player.rotation - (math.pi/2)) / math.pi) * 180 )
+                screen.blit(r_image, (player.position.x, player.position.y, 20, 20))
 
         for unit in units:
-            unit.update(on_beat)
+            if not unit.is_player:
+                if not unit.player or unit.player.dead:
+                    _players = [unit for unit in units if  not unit.dead and unit.is_player ]
+                    if players:
+                        unit.player = _players[random.randint(0, len(players) - 1)]
+                    
 
+            unit.update(on_beat)
             collision_with_player = player_unit_collision(unit, [players[key] for key in list(players.keys())])
             if collision_with_player[0]:
                 player = collision_with_player[1]
-                player.hit_points -= 10
+                player.hit_points -= unit.impact_damage
+                
                 if not unit.is_player:
-                    unit.dead = True
+                    unit.dead = True   
+
+                if player.hit_points <= 0:
+                    player.dead = True
 
             # Draw each path
             if unit.dead:
@@ -209,9 +209,9 @@ if __name__ == "__main__":
 
         for i, key in enumerate(players.keys()):
             player = players[key]
-            hp_text_surface, rect = GAME_FONT_SMALL.render(player.name + ": " + str(player.hit_points), (255, 255, 255))
+            hp_text_surface, rect = GAME_FONT_SMALL.render(player.name + ": " + str(100*player.hit_points/player.max_hit_points).split(".")[0]+"%", (255, 255, 255))
             screen.blit(hp_text_surface, ( (i+1) * 250, 10))
-        screen.blit(text_surface, (width/2 - 100, 10))
+        screen.blit(text_surface, (width/2 - 200, 10))
         
         pygame.display.flip()
         pygame.display.update()

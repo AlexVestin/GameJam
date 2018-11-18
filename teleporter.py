@@ -21,6 +21,7 @@ class Teleporter:
         self.is_player = False
         self.jump_cd_amt = 8
         self.time_since_beat = 0
+        self.impact_damage = 50
         self.init()
         
     def init(self):

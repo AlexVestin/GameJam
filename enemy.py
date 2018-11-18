@@ -16,6 +16,7 @@ class Enemy:
         self.hitbox_size = 0
         self.is_player = False
         self.player = player
+        self.impact_damage = 0
         self.init()
 
     def init(self):
@@ -25,11 +26,13 @@ class Enemy:
             self.speed = 1000
             self.hitbox_size = 15
             self.set_path()
+            self.impact_damge = 80
         else:
             self.size = 3
             self.hitbox_size = 8
             self.speed = 500
             self.color = pygame.Color(0,128,128)
+            self.impact_damage = 20
             self.set_path()
 
     def set_path(self):
