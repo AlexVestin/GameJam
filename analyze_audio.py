@@ -4,15 +4,26 @@ from librosa import load, frames_to_time, stft
 from librosa.beat import beat_track
 import numpy as np
 import pickle
-    
+
 def find_nearest(array, value):
     return (np.abs(array - value)).argmin()
 
 def analyze_audio(file_path):
     data, fs = load(file_path)
+    print(data.shape[0] / fs)
+
+
     tempo, beats = beat_track(y=data, sr=fs)
+    print(tempo)
+    l = 60 * fs * 32 / tempo
+    abs_data = np.abs(data)
+    for i in range(int(data.shape[0] / l)):
+        print(np.average(abs_data[i*int(l):(i+1)*int(l)]))
+    return
     strength   = onset_strength(data, fs)
     timestamps = frames_to_time(beats, sr=fs)
+
+    first_ts = timestamps[0]
     times = frames_to_time(np.arange(len(strength)))    
     MAX_STRENGTH = np.amax(strength)
 
@@ -31,12 +42,11 @@ class Analyzer:
             audio_info, tempo = analyze_audio(file_path)
             with open(file_path[:-4] + ".txt", "wb") as f:
                 f.write(pickle.dumps(audio_info))
-        
-        
+
         f = open(file_path[:-4] + ".txt", "rb")
         self.timestamps = pickle.load(f)
         f.close()
-        
+
     def get_from_file(self,file_path):
         f = open(file_path[:-4] + ".txt", "rb")
         self.timestamps = pickle.load(f)
@@ -50,4 +60,4 @@ class Analyzer:
             ts, strength = self.timestamps.pop(0)
         
         return strength != 0, strength
-        
+

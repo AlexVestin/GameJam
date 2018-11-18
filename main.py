@@ -22,6 +22,7 @@ player_id_cnt = 0
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 colors = ["red", "green", "blue", "white", "pink", "yellow"]
 
+
 colors_rgb = {
     "red": (255, 0, 0),
     "blue": (0, 0, 255),
@@ -30,11 +31,6 @@ colors_rgb = {
     "yellow": (255, 255, 0),
     "pink": (255, 0, 255)
 }
-
-while 1:
-    inputready, o, e = select.select([s],[],[], 0.0)
-    if len(inputready)==0: break
-    for s in inputready: s.recv(1)
 
 def parse_joystick_msg(msg):
     global player_id_cnt
@@ -49,14 +45,14 @@ def parse_joystick_msg(msg):
         if player_id_cnt < 10:
             st = "0" + str(player_id_cnt)
         s.send(st.encode())
-        players[st] = Player(300, screen.get_height() - 200, msg[1:], st)
+        players[st] = Player(random.randint(100, 600), screen.get_height() - 200, msg[1:], st)
         player_id_cnt += 1
         units.append(players[st])
 
         for color in colors:
             if color not in [unit.color for unit in units if unit.is_player]:
                 players[st].color = color
-                break; 
+                break
 
         if not players[st].color:
             players[st].color = "blue"
@@ -76,12 +72,14 @@ def parse_joystick_msg(msg):
 
         return
 
+
     if id in players:
         player = players[id]
+        player.time = 0
         msg = msg[2:].split("|")[0]
 
         if "LEFTSTART" in msg:
-            player.power = 22
+            player.power = 32
         elif "LEFTEND" in msg:
             player.power = 0
         elif "RIGHTSTART" in msg:
@@ -118,7 +116,7 @@ def assign_player(unit, players):
         if not unit.player or unit.player.dead:
             _players = [unit for unit in units if  not unit.dead and unit.is_player ]
             if players:
-                unit.player = _players[random.randint(0, len(players) - 1)]
+                unit.player = _players[random.randint(0, len(_players) - 1)]
             else:
                 unit.player = None
 
@@ -184,7 +182,7 @@ if __name__ == "__main__":
         on_beat, strength = analyzer.get_beat(t)
 
         msg = ""
-        for _ in range(len(players) + 1):
+        for _ in range(len(players) + 2):
             try:
                 msg = s.recv(16)
             except:
@@ -195,7 +193,7 @@ if __name__ == "__main__":
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
-            
+
             if event.type == pygame.KEYUP:
                 if event.key==pygame.K_RIGHT:
                     pygame.mixer.music.load("./assets/audio/"+ SONGS[song_idx % len(SONGS)])
@@ -207,7 +205,7 @@ if __name__ == "__main__":
 
         last_time = t
         if on_beat and [x for x in units if x.is_player and not x.dead]:
-            create_wave((window_width, window_height), 1, random.randint(1, 4), [x for x in units if x.is_player and not x.dead])
+            create_wave((window_width, window_height), random.randint(1, 3), random.randint(1, 3), [x for x in units if x.is_player and not x.dead])
 
         screen.fill(black)
 
@@ -219,10 +217,12 @@ if __name__ == "__main__":
             if p[1].alpha - 10 <= 0: particle.remove(p)
 
 
+
+
         for unit in units:
             assign_player(unit, players)
 
-            unit.update(on_beat)
+            unit.update(on_beat, strength)
             collision_with_player = player_unit_collision(unit, [unit for unit in units if unit.is_player and not unit.dead])
             if collision_with_player[0]:
                 player = collision_with_player[1]
@@ -255,6 +255,10 @@ if __name__ == "__main__":
                 missiles.remove(missile)
 
         for player in [player for player in units if player.is_player]:
+            if player.time >= 500:
+                units.remove(player)
+                del players[player.id]
+                continue
             if player.hit_points <= 0:
                 player.dead = True
                 units.remove(player)
@@ -265,7 +269,7 @@ if __name__ == "__main__":
             if not player.dead:
                 player.joystick_pressed()
                 player.key_pressed()
-                player.shoot()
+                player.update(on_beat, strength)
                 r_image = rot_center(player_sprites[player.color], ((player.rotation - (math.pi/2)) / math.pi) * 180 )
                 screen.blit(r_image, (player.position.x, player.position.y, 20, 20))
 

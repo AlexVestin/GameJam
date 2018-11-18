@@ -21,15 +21,26 @@ class Player():
         self.rotation = 0
         self.hit_points = 200
         self.score = 0
+        self.bullets = 1
         self.max_hit_points = 200
+        self.impact_damage = 100
         self.hitbox_size = 20
         self.dead = False
         self.impact_damage = 100
         self.score_on_death = 500
         self.is_player = True
+        self.power_up = 0
+        self.time = 0
 
-    def update(self, on_beat):
-        pass
+    def update(self, on_beat, strength):
+        self.shoot()
+        self.time += 1
+
+        if self.score >= 1000:
+            self.power_up = 1
+        if self.power_up == 1:
+            self.bullets = 3
+
 
     def move(self, x, y):
         self.position.x += x
@@ -37,7 +48,8 @@ class Player():
 
     def shoot(self):
         if self.check_cooldown():
-            missiles.append(Missile(self.position.x + 10, self.position.y + 10, self.rotation, self))
+            for bullet in range(self.bullets):
+                missiles.append(Missile(self.position.x + 10, self.position.y + 10, self.rotation + (bullet *(-bullet*0.25)**bullet) / (bullet + 1), self))
 
     def joystick_pressed(self):
         dx = math.cos(self.direction) * self.power / 12
